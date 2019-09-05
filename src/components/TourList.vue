@@ -9,7 +9,7 @@
 </template>
 
 <script>
-import { db } from "@/config/db";
+import { db } from "@/config/firebase";
 import LocationFilter from "./LocationFilter.vue";
 import TourCard from "./TourCard.vue";
 

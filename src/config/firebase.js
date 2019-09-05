@@ -1,5 +1,5 @@
 import firebase from "firebase/app";
-import "firebase/firebase-firestore";
+import "firebase/firestore";
 
 // firestore instance
 export const db = firebase

@@ -56,7 +56,7 @@
 </template>
 
 <script>
-import { db } from "@/config/db";
+import { db } from "@/config/firebase";
 
 export default {
   data: function() {

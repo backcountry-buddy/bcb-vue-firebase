@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2 class="my-2 text-lg font-light text-center">Planned Tours</h2>
+    <h2 class="my-2 text-lg font-light">Planned Tours</h2>
     <LocationFilter @applyFilter="applyFilter" />
     <ul>
       <TourCard v-for="(tour, index) in tours" :key="index" :tour="tour" />

@@ -44,12 +44,8 @@
           >
         </select>
       </div>
-      <button
-        type="button"
-        class="text-xs bg-gray-200 px-1 border"
-        @click="resetFilter"
-      >
-        reset filter
+      <button type="button" class="form-button" @click="resetFilter">
+        Reset filter
       </button>
     </div>
   </div>

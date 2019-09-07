@@ -60,8 +60,7 @@
 </template>
 
 <script>
-import { auth } from "@/config/firebase";
-import { db } from "@/config/firebase";
+import { auth, db } from "@/config/firebase";
 
 export default {
   data: function() {

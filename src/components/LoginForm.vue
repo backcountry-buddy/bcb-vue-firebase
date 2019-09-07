@@ -1,10 +1,16 @@
 <template>
-  <div v-if="isAuthenticated">
+  <div v-if="isAuthenticated" class="flex flex-col items-end">
     <!-- TODO: replace with a good display name -->
-    <span class="text-xs mr-2">Welcome, {{ currentUser.email }}!</span>
-    <button type="button" class="form-button" @click="logOut">
-      Log out
-    </button>
+    <span class="text-xs mr-2"
+      >Welcome, {{ currentUser.displayName || currentUser.email }}!</span
+    >
+    <div>
+      <router-link to="/profile" class="link-xs">Profile</router-link>
+      <span class="text-xs mx-1">|</span>
+      <button type="button" class="link-xs focus:outline-none" @click="logOut">
+        Log out
+      </button>
+    </div>
   </div>
   <div v-else class="w-3/12">
     <form @submit="loginFormSubmit" class="flex flex-col">
@@ -12,7 +18,7 @@
         type="email"
         v-model="email"
         class="form-input focus:shadow-outline mb-1"
-        placeholder="Your Email"
+        placeholder="Your email"
         autocomplete="username"
         required
       />
@@ -20,7 +26,7 @@
         type="password"
         v-model="password"
         class="form-input focus:shadow-outline mb-1"
-        placeholder="A Secure Password"
+        placeholder="A secure password"
         autocomplete="current-password"
         required
       />
@@ -28,7 +34,7 @@
         <button type="submit" class="form-button">Sign up</button>
         <button
           type="button"
-          class="text-xs px-2 focus:outline-none text-blue-400 underline"
+          class="link-xs px-2 focus:outline-none"
           @click="toggleSignUp"
         >
           Log in?
@@ -40,7 +46,7 @@
         </button>
         <button
           type="button"
-          class="text-xs px-2 focus:outline-none text-blue-400 underline"
+          class="link-xs px-2 focus:outline-none"
           @click="toggleSignUp"
         >
           No account?
@@ -55,6 +61,7 @@
 
 <script>
 import { auth } from "@/config/firebase";
+import { db } from "@/config/firebase";
 
 export default {
   data: function() {
@@ -89,8 +96,9 @@ export default {
     signUp() {
       auth
         .createUserWithEmailAndPassword(this.email, this.password)
-        .then((/*data*/) => {
-          // TODO: create user profile with data.user.uid and data.user.email
+        .then(data => {
+          const { user } = data;
+          this.createUserProfile(user);
           this.resetLoginForm();
         })
         .catch(error => {
@@ -126,6 +134,15 @@ export default {
       this.email = "";
       this.password = "";
       this.authErrorMessage = "";
+    },
+    createUserProfile(user) {
+      const { uid, email } = user;
+      db.collection("users")
+        .doc(uid)
+        .set({ email })
+        .catch(error => {
+          this.authErrorMessage = error.message;
+        });
     }
   }
 };

@@ -54,8 +54,8 @@ export default {
   created() {
     auth.onAuthStateChanged(user => {
       if (!user) {
-        // TODO: protect route
-        console.log("protected, transition to home");
+        // nothing to show without a user
+        this.$router.push("/");
         return;
       }
       const { uid, email, displayName } = user;

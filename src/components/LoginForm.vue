@@ -59,7 +59,7 @@
 </template>
 
 <script>
-import { auth, db } from "@/config/firebase";
+import { auth } from "@/config/firebase";
 
 let unsubscribeFirebaseAuth;
 
@@ -108,9 +108,7 @@ export default {
     signUp() {
       auth
         .createUserWithEmailAndPassword(this.email, this.password)
-        .then(data => {
-          const { user } = data;
-          this.createUserProfile(user);
+        .then(() => {
           this.resetLoginForm();
         })
         .catch(error => {
@@ -154,15 +152,6 @@ export default {
     resetAuthState() {
       this.isAuthenticated = false;
       this.currentUser = { email: "", displayName: "" };
-    },
-    createUserProfile(user) {
-      const { uid, email } = user;
-      db.collection("users")
-        .doc(uid)
-        .set({ email })
-        .catch(error => {
-          this.authErrorMessage = error.message;
-        });
     }
   }
 };

@@ -1,5 +1,5 @@
 <template>
-  <div class="mt-4">
+  <div v-if="profileIsLoaded" class="mt-4">
     <UserProfileForm
       v-if="isEditing"
       v-on:toggle-editing="toggleEditing"
@@ -7,13 +7,21 @@
       :currentUser="currentUser"
     />
     <div v-else>
-      <h2 class="font-semibold mb-2 flex justify-between">
-        Your public profile
-        <button type="button" class="form-button" @click="toggleEditing">
-          Edit Profile
+      <div v-if="hasProfile">
+        <h2 class="font-semibold mb-2 flex justify-between">
+          Your public profile
+          <button type="button" class="form-button" @click="toggleEditing">
+            Edit Profile
+          </button>
+        </h2>
+        <UserProfile :profile="profile" :currentUser="currentUser" />
+      </div>
+      <div v-else class="text-center">
+        <p class="mb-2">You don't have a public profile.</p>
+        <button type="button" class="form-button" @click="createProfile">
+          Create one now!
         </button>
-      </h2>
-      <UserProfile :profile="profile" :currentUser="currentUser" />
+      </div>
     </div>
     <ErrorMessage :errorMessage="errorMessage" />
   </div>
@@ -28,6 +36,8 @@ import ErrorMessage from "@/components/ErrorMessage.vue";
 export default {
   data() {
     return {
+      profileIsLoaded: false,
+      hasProfile: false,
       isEditing: false,
       currentUser: {
         uid: "",
@@ -59,7 +69,6 @@ export default {
     }
     const { uid, email, displayName } = currentUser;
     this.currentUser = { email, uid, displayName };
-    this.displayName = displayName;
     this.fetchUserProfile(uid);
   },
   methods: {
@@ -68,19 +77,34 @@ export default {
     },
     fetchUserProfile(uid) {
       this.errorMessage = "";
-      const docRef = db.collection("users").doc(uid);
-      docRef
+      db.collection("users")
+        .doc(uid)
         .get()
         .then(doc => {
           if (doc.exists) {
             const userProfile = doc.data();
             this.profile = userProfile;
-          } else {
-            this.errorMessage = "No user profile found";
+            this.hasProfile = true;
           }
         })
         .catch(error => {
           this.errorMessage = error.message;
+        })
+        .finally(() => {
+          this.profileIsLoaded = true;
+        });
+    },
+    createProfile() {
+      const { uid } = this.currentUser;
+      db.collection("users")
+        .doc(uid)
+        .set(this.profile)
+        .then(() => {
+          this.isEditing = true;
+          this.hasProfile = true;
+        })
+        .catch(error => {
+          this.authErrorMessage = error.message;
         });
     }
   }

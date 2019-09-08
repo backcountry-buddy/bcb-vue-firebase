@@ -3,6 +3,7 @@
     <div class="mb-2">
       <p class="font-semibold">
         <span v-if="profile.displayName">{{ profile.displayName }}</span>
+        <span v-else>No One</span>
       </p>
       <p v-if="profile.homeLocation" class="text-sm">
         {{ profile.homeLocation }}

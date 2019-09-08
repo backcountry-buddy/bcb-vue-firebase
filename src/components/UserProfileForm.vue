@@ -20,9 +20,7 @@
       name="display-name"
       v-model="profile.displayName"
       class="form-input focus:shadow-outline mb-1"
-      v-bind:placeholder="
-        `Nickname, real name or initials. If empty, &quot;${abbrEmailName}&quot; will be used.`
-      "
+      placeholder="Nickname, real name or initials."
     />
 
     <label for="home-location" class="text-sm italic mt-2"
@@ -133,11 +131,6 @@ export default {
     };
   },
   components: { ErrorMessage },
-  computed: {
-    abbrEmailName() {
-      return `${this.currentUser.email.split("@")[0].substring(0, 3)}...`;
-    }
-  },
   methods: {
     toggleEditing() {
       this.$emit("toggle-editing");
@@ -145,10 +138,6 @@ export default {
     onFormSubmit(evt) {
       evt.preventDefault();
       this.errorMessage = "";
-
-      if (!this.profile.displayName) {
-        this.profile.displayName = this.abbrEmailName;
-      }
 
       const saveUserMetaInfo = auth.currentUser
         .updateProfile({ displayName: this.profile.displayName })

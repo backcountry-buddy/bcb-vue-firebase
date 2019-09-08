@@ -62,23 +62,34 @@
 <script>
 import { auth, db } from "@/config/firebase";
 
+let unsubscribeFirebaseAuth;
+
 export default {
   data: function() {
     return {
       email: "",
       password: "",
       isSignUp: false,
-      authErrorMessage: ""
+      authErrorMessage: "",
+      isAuthenticated: false,
+      currentUser: {
+        email: ""
+      }
     };
   },
-  props: {
-    isAuthenticated: Boolean,
-    currentUser: {
-      type: Object,
-      default: function() {
-        return { email: "" };
+  created() {
+    unsubscribeFirebaseAuth = auth.onAuthStateChanged(user => {
+      if (!user) {
+        return;
       }
-    }
+      this.isAuthenticated = true;
+      const { email, displayName } = user;
+      this.currentUser.email = email;
+      this.currentUser.displayName = displayName;
+    });
+  },
+  beforeDestroy() {
+    unsubscribeFirebaseAuth();
   },
   methods: {
     toggleSignUp() {
@@ -124,6 +135,10 @@ export default {
         .signOut()
         .then(() => {
           this.resetLoginForm();
+          this.resetAuthState();
+          if (this.$router.currentRoute.meta.requiresAuth) {
+            this.$router.push("/");
+          }
         })
         .catch(error => {
           this.authErrorMessage = error.message;
@@ -133,6 +148,10 @@ export default {
       this.email = "";
       this.password = "";
       this.authErrorMessage = "";
+    },
+    resetAuthState() {
+      this.isAuthenticated = false;
+      this.currentUser = { email: "", displayName: "" };
     },
     createUserProfile(user) {
       const { uid, email } = user;

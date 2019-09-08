@@ -52,17 +52,14 @@ export default {
     ErrorMessage
   },
   created() {
-    auth.onAuthStateChanged(user => {
-      if (!user) {
-        // nothing to show without a user
-        this.$router.push("/");
-        return;
-      }
-      const { uid, email, displayName } = user;
-      this.currentUser = { email, uid, displayName };
-      this.displayName = displayName;
-      this.fetchUserProfile(uid);
-    });
+    const currentUser = auth.currentUser;
+    if (!currentUser) {
+      return;
+    }
+    const { uid, email, displayName } = currentUser;
+    this.currentUser = { email, uid, displayName };
+    this.displayName = displayName;
+    this.fetchUserProfile(uid);
   },
   methods: {
     toggleEditing() {

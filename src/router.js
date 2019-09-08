@@ -1,10 +1,11 @@
 import Vue from "vue";
 import Router from "vue-router";
 import Home from "./views/Home.vue";
+import { auth } from "./config/firebase";
 
 Vue.use(Router);
 
-export default new Router({
+const router = new Router({
   mode: "history",
   base: process.env.BASE_URL,
   routes: [
@@ -18,7 +19,23 @@ export default new Router({
       path: "/profile",
       name: "profile",
       component: () =>
-        import(/* webpackChunkName: "Profile" */ "./views/Profile.vue")
+        import(/* webpackChunkName: "Profile" */ "./views/Profile.vue"),
+      meta: {
+        requiresAuth: true
+      }
     }
   ]
 });
+
+router.beforeEach((to, from, next) => {
+  const currentUser = auth.currentUser;
+  const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
+
+  if (requiresAuth && !currentUser) {
+    next("/");
+  } else {
+    next();
+  }
+});
+
+export default router;

@@ -1,6 +1,5 @@
 <template>
   <div v-if="isAuthenticated" class="flex flex-col items-end">
-    <!-- TODO: replace with a good display name -->
     <span class="text-xs mr-2"
       >Welcome, {{ currentUser.displayName || currentUser.email }}!</span
     >
@@ -73,7 +72,9 @@ export default {
       authErrorMessage: "",
       isAuthenticated: false,
       currentUser: {
-        email: ""
+        email: "",
+        displayName: "",
+        uid: ""
       }
     };
   },
@@ -83,9 +84,10 @@ export default {
         return;
       }
       this.isAuthenticated = true;
-      const { email, displayName } = user;
+      const { email, displayName, uid } = user;
       this.currentUser.email = email;
       this.currentUser.displayName = displayName;
+      this.currentUser.uid = uid;
     });
   },
   beforeDestroy() {

@@ -23,6 +23,12 @@ const router = new Router({
       meta: {
         requiresAuth: true
       }
+    },
+    {
+      path: "/users/:uid",
+      name: "userDetail",
+      component: () =>
+        import(/* webpackChunkName: "UserDetail" */ "./views/UserDetail.vue")
     }
   ]
 });

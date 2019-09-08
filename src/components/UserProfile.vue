@@ -2,10 +2,7 @@
   <div>
     <div class="mb-2">
       <p class="font-semibold">
-        <span v-if="currentUser.displayName">{{
-          currentUser.displayName
-        }}</span>
-        <span v-else-if="currentUser.email">{{ abbrEmailName }}</span>
+        <span v-if="profile.displayName">{{ profile.displayName }}</span>
       </p>
       <p v-if="profile.homeLocation" class="text-sm">
         {{ profile.homeLocation }}
@@ -56,11 +53,8 @@
 import { experienceLevels } from "@/config/user-profile";
 
 export default {
-  props: { profile: Object, currentUser: Object },
+  props: { profile: Object },
   computed: {
-    abbrEmailName() {
-      return `${this.currentUser.email.split("@")[0].substring(0, 3)}...`;
-    },
     experienceLevel() {
       return experienceLevels[this.profile.experienceLevel];
     }

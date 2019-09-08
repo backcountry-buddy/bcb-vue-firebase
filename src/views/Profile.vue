@@ -35,6 +35,7 @@ export default {
         displayName: ""
       },
       profile: {
+        displayName: "",
         homeLocation: "",
         travelDestinations: "",
         experienceLocations: "",

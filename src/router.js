@@ -29,6 +29,15 @@ const router = new Router({
       name: "userDetail",
       component: () =>
         import(/* webpackChunkName: "UserDetail" */ "./views/UserDetail.vue")
+    },
+    {
+      path: "/new-tour",
+      name: "newTour",
+      component: () =>
+        import(/* webpackChunkName: "NewTour" */ "./views/NewTour.vue"),
+      meta: {
+        requiresAuth: true
+      }
     }
   ]
 });

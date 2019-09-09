@@ -1,6 +1,14 @@
 <template>
-  <div>
-    <h2 class="my-2 text-lg font-light">Planned Tours</h2>
+  <div class="mt-4">
+    <h2 class="my-2 text-lg font-light flex justify-between items-center">
+      Planned Tours
+      <router-link
+        v-if="isAuthenticated"
+        to="/new-tour"
+        class="bg-gray-200 py-1 px-2"
+        >Post a new tour</router-link
+      >
+    </h2>
     <LocationFilter @applyFilter="applyFilter" />
     <ul>
       <TourListCard v-for="(tour, index) in tours" :key="index" :tour="tour" />
@@ -9,23 +17,36 @@
 </template>
 
 <script>
-import { db } from "@/config/firebase";
+import { db, auth } from "@/config/firebase";
 import LocationFilter from "./LocationFilter.vue";
 import TourListCard from "./TourListCard.vue";
 
 // TODO: verify this is timezone safe
 const plannedTours = db.collection("tours").where("plannedOn", ">", new Date());
+let unsubscribeFirebaseAuth;
 
 export default {
-  components: {
-    LocationFilter,
-    TourListCard
-  },
   data: function() {
     return {
+      isAuthenticated: false,
       tours: [],
       filter: {}
     };
+  },
+
+  created() {
+    unsubscribeFirebaseAuth = auth.onAuthStateChanged(user => {
+      this.isAuthenticated = !!user;
+    });
+  },
+
+  beforeDestroy() {
+    unsubscribeFirebaseAuth();
+  },
+
+  components: {
+    LocationFilter,
+    TourListCard
   },
 
   watch: {

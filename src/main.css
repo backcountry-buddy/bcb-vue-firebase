@@ -6,7 +6,9 @@
   @apply text-xs text-blue-400 underline
 }
 
-.form-input {
+.form-input-xs {
+  @apply text-xs bg-gray-100 p-1 outline-none border;
+}
   @apply text-xs bg-gray-100 p-1 outline-none border;
 }
 

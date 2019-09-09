@@ -3,7 +3,7 @@
     <h2 class="my-2 text-lg font-light">Planned Tours</h2>
     <LocationFilter @applyFilter="applyFilter" />
     <ul>
-      <TourCard v-for="(tour, index) in tours" :key="index" :tour="tour" />
+      <TourListCard v-for="(tour, index) in tours" :key="index" :tour="tour" />
     </ul>
   </div>
 </template>
@@ -11,7 +11,7 @@
 <script>
 import { db } from "@/config/firebase";
 import LocationFilter from "./LocationFilter.vue";
-import TourCard from "./TourCard.vue";
+import TourListCard from "./TourListCard.vue";
 
 // TODO: verify this is timezone safe
 const plannedTours = db.collection("tours").where("plannedOn", ">", new Date());
@@ -19,7 +19,7 @@ const plannedTours = db.collection("tours").where("plannedOn", ">", new Date());
 export default {
   components: {
     LocationFilter,
-    TourCard
+    TourListCard
   },
   data: function() {
     return {

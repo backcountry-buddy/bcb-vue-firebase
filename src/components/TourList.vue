@@ -71,7 +71,7 @@ export default {
               .where("state", "==", f.state)
           );
           break;
-        // country + state = region
+        // country + state + region
         case 3:
           this.$bind(
             "tours",
@@ -79,6 +79,17 @@ export default {
               .where("country", "==", f.country)
               .where("state", "==", f.state)
               .where("region", "==", f.region)
+          );
+          break;
+        // country + state + region + location
+        case 4:
+          this.$bind(
+            "tours",
+            plannedTours
+              .where("country", "==", f.country)
+              .where("state", "==", f.state)
+              .where("region", "==", f.region)
+              .where("location", "==", f.location)
           );
           break;
         default:

@@ -1,14 +1,15 @@
 <template>
-  <div class="border p-2 my-4">
-    <h3 class="mb-2 italic font-light text-sm">
-      Filter planned tours by location
-    </h3>
+  <div>
+    <label for="location" class="mb-2 italic font-light text-sm">
+      {{ label }}
+    </label>
     <div class="flex justify-between items-center">
       <div>
         <select
-          v-model="appliedFilter.country"
-          @change="updateFilter('country')"
+          v-model="selection.country"
+          @change="selectLocation('country')"
           class="bg-gray-200 text-sm"
+          name="location"
         >
           <option disabled value>Select a country</option>
           <option
@@ -18,10 +19,11 @@
           >
         </select>
         <select
-          v-if="!!appliedFilter.country"
-          v-model="appliedFilter.state"
-          @change="updateFilter('state')"
+          v-if="!!selection.country"
+          v-model="selection.state"
+          @change="selectLocation('state')"
           class="ml-2 bg-gray-200 text-sm"
+          name="location"
         >
           <option disabled value>Select a state</option>
           <option
@@ -31,10 +33,11 @@
           >
         </select>
         <select
-          v-if="!!appliedFilter.state"
-          v-model="appliedFilter.region"
-          @change="updateFilter('region')"
+          v-if="!!selection.state"
+          v-model="selection.region"
+          @change="selectLocation('region')"
           class="ml-2 bg-gray-200 text-sm"
+          name="location"
         >
           <option disabled value>Select a region</option>
           <option
@@ -44,8 +47,8 @@
           >
         </select>
       </div>
-      <button type="button" class="form-button" @click="resetFilter">
-        Reset filter
+      <button type="button" class="form-button" @click="resetSelection">
+        Reset
       </button>
     </div>
   </div>
@@ -55,10 +58,12 @@
 import { db } from "@/config/firebase";
 
 export default {
+  props: ["label"],
+
   data: function() {
     return {
-      filterConfig: {},
-      appliedFilter: {
+      selectConfig: {},
+      selection: {
         country: "United States",
         state: "",
         region: ""
@@ -68,52 +73,50 @@ export default {
 
   computed: {
     countries() {
-      return this.filterConfig;
+      return this.selectConfig;
     },
     states() {
-      return this.filterConfig[this.appliedFilter.country];
+      return this.selectConfig[this.selection.country];
     },
     regions() {
-      return this.filterConfig[this.appliedFilter.country][
-        this.appliedFilter.state
-      ];
+      return this.selectConfig[this.selection.country][this.selection.state];
     }
   },
 
   methods: {
-    updateFilter(locationType) {
+    selectLocation(locationType) {
       if (locationType === "country") {
-        this.appliedFilter.state = "";
-        this.appliedFilter.region = "";
+        this.selection.state = "";
+        this.selection.region = "";
       }
       if (locationType === "state") {
-        this.appliedFilter.region = "";
+        this.selection.region = "";
       }
-      const cleanFilter = this.cleanFilter(this.appliedFilter);
-      this.$emit("applyFilter", cleanFilter);
+      const cleanLocationParams = this.cleanParams(this.selection);
+      this.$emit("selectLocation", cleanLocationParams);
     },
-    cleanFilter(filter) {
-      // remove empty filter params
-      return Object.keys(filter).reduce((cleaned, filterParam) => {
-        if (filter[filterParam]) {
-          cleaned[filterParam] = filter[filterParam];
+    cleanParams(params) {
+      // remove empty params
+      return Object.keys(params).reduce((cleanedParams, param) => {
+        if (params[param]) {
+          cleanedParams[param] = params[param];
         }
-        return cleaned;
+        return cleanedParams;
       }, {});
     },
-    resetFilter() {
-      this.appliedFilter = {
+    resetSelection() {
+      this.selection = {
         country: "",
         state: "",
         region: ""
       };
-      const cleanFilter = this.cleanFilter(this.appliedFilter);
-      this.$emit("applyFilter", cleanFilter);
+      const cleanParams = this.cleanParams(this.selection);
+      this.$emit("selectLocation", cleanParams);
     }
   },
 
   firestore: {
-    filterConfig: db.collection("configs").doc("locationFilter")
+    selectConfig: db.collection("configs").doc("locationSelect")
   }
 };
 </script>

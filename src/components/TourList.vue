@@ -9,7 +9,11 @@
         >Post a new tour</router-link
       >
     </h2>
-    <LocationFilter @applyFilter="applyFilter" />
+    <LocationSelect
+      class="border p-2 my-4"
+      @selectLocation="applyFilter"
+      label="Filter planned tours by location"
+    />
     <ul>
       <TourListCard v-for="(tour, index) in tours" :key="index" :tour="tour" />
     </ul>
@@ -18,7 +22,7 @@
 
 <script>
 import { db, auth } from "@/config/firebase";
-import LocationFilter from "./LocationFilter.vue";
+import LocationSelect from "./LocationSelect.vue";
 import TourListCard from "./TourListCard.vue";
 
 // TODO: verify this is timezone safe
@@ -45,7 +49,7 @@ export default {
   },
 
   components: {
-    LocationFilter,
+    LocationSelect,
     TourListCard
   },
 
@@ -85,8 +89,8 @@ export default {
   },
 
   methods: {
-    applyFilter(filter) {
-      this.filter = filter;
+    applyFilter(params) {
+      this.filter = params;
     }
   },
 

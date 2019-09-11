@@ -9,6 +9,7 @@ firebase.initializeApp({
 });
 
 export const db = firebase.firestore();
+export const firestore = firebase.firestore;
 export const auth = firebase.auth();
 
 // Export types that exists in Firestore

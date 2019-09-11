@@ -7,12 +7,14 @@ service cloud.firestore {
       
     match /locations/{location} {
       allow read;
+      allow create: if request.auth.uid != null;
+      allow update, delete: if false;
     }
       
     match /tours/{tour} {
       allow read;
       allow create: if request.auth.uid != null;
-      allow read, update, delete: if request.auth.uid == tour.data.creatorId;
+      allow update, delete: if tour.data.creatorRef.endsWith(request.auth.uid);
     }
 
     match /users/{user} {

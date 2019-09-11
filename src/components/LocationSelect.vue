@@ -1,6 +1,6 @@
 <template>
   <div>
-    <label for="location" class="mb-2 italic font-light text-sm">
+    <label v-if="label" for="location" class="mb-2 italic font-light text-sm">
       {{ label }}
     </label>
     <div class="flex justify-between items-center">

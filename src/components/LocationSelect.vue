@@ -49,17 +49,15 @@
 
         <select
           v-if="!!selection.region"
-          v-model="selection.location"
-          @change="selectLocation('location')"
+          v-model="selection.name"
+          @change="selectLocation('name')"
           class="ml-2 bg-gray-200 text-sm"
           name="location"
         >
           <option disabled value>Select a location</option>
-          <option
-            v-for="(v, location, index) in locations"
-            v-bind:key="index"
-            >{{ location }}</option
-          >
+          <option v-for="(v, name, index) in locations" v-bind:key="index">{{
+            name
+          }}</option>
         </select>
       </div>
       <button type="button" class="form-button" @click="resetSelection">
@@ -79,10 +77,10 @@ export default {
     return {
       selectConfig: {},
       selection: {
-        country: "United States",
+        country: "",
         state: "",
         region: "",
-        location: ""
+        name: ""
       }
     };
   },
@@ -109,14 +107,14 @@ export default {
       if (locationType === "country") {
         this.selection.state = "";
         this.selection.region = "";
-        this.selection.location = "";
+        this.selection.name = "";
       }
       if (locationType === "state") {
         this.selection.region = "";
-        this.selection.location = "";
+        this.selection.name = "";
       }
       if (locationType === "region") {
-        this.selection.location = "";
+        this.selection.name = "";
       }
       const cleanLocationParams = this.cleanParams(this.selection);
       this.$emit("selectLocation", cleanLocationParams);
@@ -135,7 +133,7 @@ export default {
         country: "",
         state: "",
         region: "",
-        location: ""
+        name: ""
       };
       const cleanParams = this.cleanParams(this.selection);
       this.$emit("selectLocation", cleanParams);

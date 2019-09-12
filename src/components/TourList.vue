@@ -33,8 +33,7 @@ export default {
   data: function() {
     return {
       isAuthenticated: false,
-      tours: [],
-      filter: {}
+      tours: []
     };
   },
 
@@ -53,22 +52,25 @@ export default {
     TourListCard
   },
 
-  watch: {
+  methods: {
     // TODO: there must be a better way to compose query objects...
-    filter(f) {
-      const queryScenario = Object.keys(f).length;
+    applyFilter(locationFilter) {
+      const queryScenario = Object.keys(locationFilter).length;
       switch (queryScenario) {
         // country
         case 1:
-          this.$bind("tours", plannedTours.where("country", "==", f.country));
+          this.$bind(
+            "tours",
+            plannedTours.where("country", "==", locationFilter.country)
+          );
           break;
         // country + state
         case 2:
           this.$bind(
             "tours",
             plannedTours
-              .where("country", "==", f.country)
-              .where("state", "==", f.state)
+              .where("country", "==", locationFilter.country)
+              .where("state", "==", locationFilter.state)
           );
           break;
         // country + state + region
@@ -76,9 +78,9 @@ export default {
           this.$bind(
             "tours",
             plannedTours
-              .where("country", "==", f.country)
-              .where("state", "==", f.state)
-              .where("region", "==", f.region)
+              .where("country", "==", locationFilter.country)
+              .where("state", "==", locationFilter.state)
+              .where("region", "==", locationFilter.region)
           );
           break;
         // country + state + region + location
@@ -86,22 +88,16 @@ export default {
           this.$bind(
             "tours",
             plannedTours
-              .where("country", "==", f.country)
-              .where("state", "==", f.state)
-              .where("region", "==", f.region)
-              .where("location", "==", f.location)
+              .where("country", "==", locationFilter.country)
+              .where("state", "==", locationFilter.state)
+              .where("region", "==", locationFilter.region)
+              .where("location", "==", locationFilter.name)
           );
           break;
         default:
           this.$bind("tours", plannedTours.limit(20));
           break;
       }
-    }
-  },
-
-  methods: {
-    applyFilter(params) {
-      this.filter = params;
     }
   },
 

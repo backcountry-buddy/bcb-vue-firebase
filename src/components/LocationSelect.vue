@@ -6,57 +6,51 @@
     <div class="flex justify-between items-center">
       <div>
         <select
-          v-model="selection.country"
+          v-model="selectedCountry"
           @change="selectLocation('country')"
           class="bg-gray-200 text-sm"
-          name="location"
+          name="country"
         >
-          <option disabled value>Select a country</option>
-          <option
-            v-for="(states, country, index) in countries"
-            v-bind:key="index"
-            >{{ country }}</option
-          >
+          <option value>Select a country</option>
+          <option v-for="country in countries" v-bind:key="country.id">{{
+            country.name
+          }}</option>
         </select>
         <select
-          v-if="!!selection.country"
-          v-model="selection.state"
+          v-if="!!selectedCountry"
+          v-model="selectedState"
           @change="selectLocation('state')"
           class="ml-2 bg-gray-200 text-sm"
-          name="location"
+          name="state"
         >
-          <option disabled value>Select a state</option>
-          <option
-            v-for="(regions, state, index) in states"
-            v-bind:key="index"
-            >{{ state }}</option
+          <option value>Select a state</option>
+          <option v-for="state in states" v-bind:key="state.id">
+            {{ state.name }}</option
           >
         </select>
         <select
-          v-if="!!selection.state"
-          v-model="selection.region"
+          v-if="!!selectedState"
+          v-model="selectedRegion"
           @change="selectLocation('region')"
           class="ml-2 bg-gray-200 text-sm"
-          name="location"
+          name="region"
         >
-          <option disabled value>Select a region</option>
-          <option
-            v-for="(locactions, region, index) in regions"
-            v-bind:key="index"
-            >{{ region }}</option
-          >
+          <option value>Select a region</option>
+          <option v-for="region in regions" v-bind:key="region.id">{{
+            region.name
+          }}</option>
         </select>
 
         <select
-          v-if="!!selection.region"
-          v-model="selection.name"
-          @change="selectLocation('name')"
+          v-if="!!selectedRegion"
+          v-model="selectedLocation"
+          @change="selectLocation('location')"
           class="ml-2 bg-gray-200 text-sm"
           name="location"
         >
-          <option disabled value>Select a location</option>
-          <option v-for="(v, name, index) in locations" v-bind:key="index">{{
-            name
+          <option value>Select a location</option>
+          <option v-for="location in locations" v-bind:key="location.id">{{
+            location.name
           }}</option>
         </select>
       </div>
@@ -70,78 +64,90 @@
 <script>
 import { db } from "@/config/firebase";
 
+const countries = db.collection("countries").orderBy("name");
+const states = db.collection("states").orderBy("name");
+const regions = db.collection("regions").orderBy("name");
+const locations = db.collection("locations").orderBy("name");
+
 export default {
   props: ["label"],
 
   data: function() {
     return {
-      selectConfig: {},
-      selection: {
-        country: "",
-        state: "",
-        region: "",
-        name: ""
-      }
+      selectedCountry: "",
+      selectedState: "",
+      selectedRegion: "",
+      selectedLocation: "",
+
+      countries: [],
+      states: [],
+      regions: [],
+      locations: []
     };
   },
 
-  computed: {
-    countries() {
-      return this.selectConfig;
+  watch: {
+    selectedCountry(country) {
+      this.$bind("states", states.where("country", "==", country));
     },
-    states() {
-      return this.selectConfig[this.selection.country];
+    selectedState(state) {
+      this.$bind(
+        "regions",
+        regions
+          .where("country", "==", this.selectedCountry)
+          .where("state", "==", state)
+      );
     },
-    regions() {
-      return this.selectConfig[this.selection.country][this.selection.state];
-    },
-    locations() {
-      return this.selectConfig[this.selection.country][this.selection.state][
-        this.selection.region
-      ];
+    selectedRegion(region) {
+      this.$bind(
+        "locations",
+        locations
+          .where("country", "==", this.selectedCountry)
+          .where("state", "==", this.selectedState)
+          .where("region", "==", region)
+      );
     }
   },
 
   methods: {
     selectLocation(locationType) {
       if (locationType === "country") {
-        this.selection.state = "";
-        this.selection.region = "";
-        this.selection.name = "";
+        this.selectedState = "";
+        this.selectedRegion = "";
+        this.selectedLocation = "";
       }
       if (locationType === "state") {
-        this.selection.region = "";
-        this.selection.name = "";
+        this.selectedRegion = "";
+        this.selectedLocation = "";
       }
       if (locationType === "region") {
-        this.selection.name = "";
+        this.selectedLocation = "";
       }
-      const cleanLocationParams = this.cleanParams(this.selection);
-      this.$emit("selectLocation", cleanLocationParams);
-    },
-    cleanParams(params) {
-      // remove empty params
-      return Object.keys(params).reduce((cleanedParams, param) => {
-        if (params[param]) {
-          cleanedParams[param] = params[param];
+      const params = {};
+      [
+        "selectedCountry",
+        "selectedState",
+        "selectedRegion",
+        "selectedLocation"
+      ].forEach(prop => {
+        if (this.$data[prop]) {
+          const paramName = prop.slice(8).toLowerCase();
+          params[paramName] = this.$data[prop];
         }
-        return cleanedParams;
-      }, {});
+      });
+      this.$emit("selectLocation", params);
     },
     resetSelection() {
-      this.selection = {
-        country: "",
-        state: "",
-        region: "",
-        name: ""
-      };
-      const cleanParams = this.cleanParams(this.selection);
-      this.$emit("selectLocation", cleanParams);
+      this.selectedCountry = "";
+      this.selectedState = "";
+      this.selectedRegion = "";
+      this.selectedLocation = "";
+      this.$emit("selectLocation", {});
     }
   },
 
   firestore: {
-    selectConfig: db.collection("configs").doc("locationSelect")
+    countries
   }
 };
 </script>

@@ -1,8 +1,19 @@
 service cloud.firestore {
   match /databases/{database}/documents {
-    
-    match /configs/{config} {
+        
+    match /countries/{country} {
       allow read;
+      allow write: if false;
+    }
+    
+    match /states/{state} {
+      allow read;
+      allow write: if false;
+    }
+    
+    match /regions/{region} {
+      allow read;
+      allow write: if false;
     }
       
     match /locations/{location} {

@@ -91,7 +91,7 @@ export default {
               .where("country", "==", locationFilter.country)
               .where("state", "==", locationFilter.state)
               .where("region", "==", locationFilter.region)
-              .where("location", "==", locationFilter.name)
+              .where("location", "==", locationFilter.location)
           );
           break;
         default:

@@ -47,7 +47,7 @@
               <input
                 type="text"
                 id="location-name"
-                v-model="location.name"
+                v-model="location.location"
                 class="form-input-sm focus:shadow-outline mb-1 max-w-full"
                 placeholder="Mount Washington"
                 required
@@ -184,7 +184,7 @@ export default {
         country: "",
         state: "",
         region: "",
-        name: "",
+        location: "",
         coordinates: ""
       },
       tour: {
@@ -225,13 +225,7 @@ export default {
         this.tour.locationRef = await this.createNewLocation(this.location);
       }
 
-      // location = location.name on tour doc
-      const locationData = Object.assign(
-        { location: this.location.name },
-        this.location
-      );
-      delete locationData.name;
-      const tourData = Object.assign({}, this.tour, locationData, {
+      const tourData = Object.assign({}, this.tour, this.location, {
         plannedOn: firestore.Timestamp.fromDate(
           DateTime.fromSeconds(this.tour.plannedOn).toJSDate()
         ),
@@ -260,18 +254,18 @@ export default {
       });
       this.locationCoordinateString = "";
     },
-    onLocationChange(location) {
-      Object.assign(this.location, location);
-      const locationKeys = Object.keys(location);
+    onLocationChange(selectedLocation) {
+      Object.assign(this.location, selectedLocation);
+      const locationKeys = Object.keys(selectedLocation);
 
       if (locationKeys.length === 4) {
         // query location reference
         const locationQuery = db
           .collection("locations")
-          .where("country", "==", location.country)
-          .where("state", "==", location.state)
-          .where("region", "==", location.region)
-          .where("name", "==", location.name);
+          .where("country", "==", selectedLocation.country)
+          .where("state", "==", selectedLocation.state)
+          .where("region", "==", selectedLocation.region)
+          .where("name", "==", selectedLocation.location);
 
         locationQuery
           .get()
@@ -290,9 +284,12 @@ export default {
     },
     async createNewLocation(location) {
       const locationData = Object.assign({}, location, {
+        name,
         created: firestore.FieldValue.serverTimestamp(),
         creatorRef: db.collection("users").doc(this.currentUser.uid)
       });
+      locationData.name = locationData.location;
+      delete locationData.location;
 
       return await db
         .collection("locations")

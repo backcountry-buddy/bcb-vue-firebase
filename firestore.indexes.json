@@ -1,10 +1,8 @@
 {
-  "indexes": [
-    {
+  "indexes": [{
       "collectionGroup": "tours",
       "queryScope": "COLLECTION",
-      "fields": [
-        {
+      "fields": [{
           "fieldPath": "country",
           "order": "ASCENDING"
         },
@@ -17,12 +15,7 @@
     {
       "collectionGroup": "tours",
       "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "country",
-          "order": "ASCENDING"
-        },
-        {
+      "fields": [{
           "fieldPath": "state",
           "order": "ASCENDING"
         },
@@ -35,8 +28,7 @@
     {
       "collectionGroup": "tours",
       "queryScope": "COLLECTION",
-      "fields": [
-        {
+      "fields": [{
           "fieldPath": "region",
           "order": "ASCENDING"
         },
@@ -45,6 +37,59 @@
           "order": "ASCENDING"
         }
       ]
+    },
+    {
+      "collectionGroup": "tours",
+      "queryScope": "COLLECTION",
+      "fields": [{
+        "fieldPath": "location",
+        "order": "ASCENDING"
+      }, {
+        "fieldPath": "plannedOn",
+        "order": "ASCENDING"
+      }]
+    },
+    {
+      "collectionGroup": "states",
+      "queryScope": "COLLECTION",
+      "fields": [{
+        "fieldPath": "country",
+        "order": "ASCENDING"
+      }, {
+        "fieldPath": "name",
+        "order": "ASCENDING"
+      }]
+    },
+    {
+      "collectionGroup": "regions",
+      "queryScope": "COLLECTION",
+      "fields": [{
+        "fieldPath": "country",
+        "order": "ASCENDING"
+      }, {
+        "fieldPath": "state",
+        "order": "ASCENDING"
+      }, {
+        "fieldPath": "name",
+        "order": "ASCENDING"
+      }]
+    },
+    {
+      "collectionGroup": "locations",
+      "queryScope": "COLLECTION",
+      "fields": [{
+        "fieldPath": "country",
+        "order": "ASCENDING"
+      }, {
+        "fieldPath": "region",
+        "order": "ASCENDING"
+      }, {
+        "fieldPath": "state",
+        "order": "ASCENDING"
+      }, {
+        "fieldPath": "name",
+        "order": "ASCENDING"
+      }]
     }
   ],
   "fieldOverrides": []

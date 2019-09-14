@@ -4,7 +4,7 @@
       Planned Tours
       <router-link
         v-if="isAuthenticated"
-        to="/new-tour"
+        to="/tours/new"
         class="bg-gray-200 py-1 px-2"
         >Post a new tour</router-link
       >
@@ -14,9 +14,12 @@
       @selectLocation="applyFilter"
       label="Filter planned tours by location"
     />
-    <ul>
+    <ul v-if="tours.length">
       <TourListCard v-for="(tour, index) in tours" :key="index" :tour="tour" />
     </ul>
+    <div v-else class="text-center">
+      No tours found.
+    </div>
   </div>
 </template>
 

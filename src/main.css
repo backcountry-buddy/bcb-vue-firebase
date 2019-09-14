@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+.link {
+  @apply text-blue-400 underline
+}
+
 .link-xs {
   @apply text-xs text-blue-400 underline
 }

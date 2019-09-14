@@ -1,6 +1,10 @@
 service cloud.firestore {
   match /databases/{database}/documents {
-        
+    
+    match /configs/{config} {
+      allow read;
+    }
+    
     match /countries/{country} {
       allow read;
       allow write: if false;
@@ -25,7 +29,7 @@ service cloud.firestore {
     match /tours/{tour} {
       allow read;
       allow create: if request.auth.uid != null;
-      allow update, delete: if tour.data.creatorRef.endsWith(request.auth.uid);
+      allow update, delete: if get(resource.data.creatorRef).id == request.auth.uid;
     }
 
     match /users/{user} {

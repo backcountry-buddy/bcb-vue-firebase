@@ -70,7 +70,7 @@ const regions = db.collection("regions").orderBy("name");
 const locations = db.collection("locations").orderBy("name");
 
 export default {
-  props: ["label"],
+  props: ["label", "preSelected"],
 
   data: function() {
     return {
@@ -84,6 +84,15 @@ export default {
       regions: [],
       locations: []
     };
+  },
+
+  created() {
+    if (this.preSelected) {
+      this.selectedCountry = this.preSelected.country || "";
+      this.selectedState = this.preSelected.state || "";
+      this.selectedRegion = this.preSelected.region || "";
+      this.selectedLocation = this.preSelected.location || "";
+    }
   },
 
   watch: {

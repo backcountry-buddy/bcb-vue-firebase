@@ -2,10 +2,10 @@
   <div class="mt-4">
     <form @submit="onFormSubmit" class="flex flex-col">
       <h2 class="text-lg font-light flex justify-between mb-4">
-        <span class="flex-grow">Post a new tour</span>
+        <span class="flex-grow">{{ title }}</span>
         <button
           type="button"
-          @click="browserBack"
+          @click="goBack"
           class="form-button text-gray-600 mr-2"
         >
           Cancel
@@ -123,10 +123,10 @@
         </div>
       </div>
       <div v-else>
-        <!-- TODO: allow location props to preset dropdowns -->
         <LocationSelect
           class="border p-2"
           label=""
+          :pre-selected="location"
           @selectLocation="onLocationChange"
         />
         <div class="text-right mt-2">
@@ -156,7 +156,7 @@
       <div class="text-right mt-4">
         <button
           type="button"
-          @click="browserBack"
+          @click="goBack"
           class="form-button text-gray-600 mr-2"
         >
           Cancel
@@ -173,6 +173,8 @@ import { DateTime } from "luxon";
 import LocationSelect from "@/components/LocationSelect.vue";
 
 export default {
+  props: ["title", "tour"],
+
   data() {
     return {
       currentUser: {
@@ -186,13 +188,6 @@ export default {
         region: "",
         location: "",
         coordinates: ""
-      },
-      tour: {
-        description: "",
-        locationRef: "",
-        plannedOn: DateTime.local().toSeconds(),
-        creatorRef: "",
-        created: ""
       }
     };
   },
@@ -200,12 +195,16 @@ export default {
   components: { LocationSelect },
 
   created() {
-    const currentUser = auth.currentUser;
-    if (!currentUser) {
-      return;
+    // pre-select location filter
+    for (var prop in this.location) {
+      this.location[prop] = this.tour[prop];
     }
-    const { uid } = currentUser;
-    this.currentUser = { uid };
+
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+      const { uid } = currentUser;
+      this.currentUser = { uid };
+    }
   },
 
   watch: {
@@ -220,31 +219,28 @@ export default {
   methods: {
     async onFormSubmit(evt) {
       evt.preventDefault();
-
       if (this.isAddingLocation) {
         this.tour.locationRef = await this.createNewLocation(this.location);
       }
 
+      // required if locationRef has been resolved to Map
+      if (!this.tour.locationRef.path) {
+        this.tour.locationRef = db
+          .collection("locations")
+          .doc(this.tour.locationRef.id);
+      }
+
       const tourData = Object.assign({}, this.tour, this.location, {
-        plannedOn: firestore.Timestamp.fromDate(
-          DateTime.fromSeconds(this.tour.plannedOn).toJSDate()
-        ),
-        created: firestore.FieldValue.serverTimestamp(),
         creatorRef: db.collection("users").doc(this.currentUser.uid)
       });
-
-      try {
-        await db.collection("tours").add(tourData);
-        this.$router.push({ name: "home" });
-      } catch (error) {
-        // TODO: Show error in UI
-        console.error("Error saving a new tour: ", error);
-      }
+      this.$emit("save", tourData);
     },
     updatePlannedOn(evt) {
-      this.tour.plannedOn = DateTime.fromISO(evt.target.value).toSeconds();
+      // localized date input
+      const date = DateTime.fromISO(evt.target.value).toJSDate();
+      this.tour.plannedOn = firestore.Timestamp.fromDate(date);
     },
-    browserBack() {
+    goBack() {
       this.$router.go(-1);
     },
     toggleIsAddingLocation() {
@@ -284,10 +280,11 @@ export default {
     },
     async createNewLocation(location) {
       const locationData = Object.assign({}, location, {
-        name,
         created: firestore.FieldValue.serverTimestamp(),
-        creatorRef: db.collection("users").doc(this.currentUser.uid)
+        creatorRef: db.collection("users").doc(this.currentUser.uid),
+        isVerified: false
       });
+      // sligthly confusing: location.name inherits tour.location
       locationData.name = locationData.location;
       delete locationData.location;
 
@@ -302,7 +299,8 @@ export default {
 
   computed: {
     localizedPlannedOn() {
-      return DateTime.fromSeconds(this.tour.plannedOn, {
+      const { seconds } = this.tour.plannedOn;
+      return DateTime.fromSeconds(seconds, {
         zone: "utc"
       }).toISODate();
     }

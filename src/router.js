@@ -43,7 +43,11 @@ const router = new Router({
       path: "/tours/:id/edit",
       name: "tourEdit",
       component: () =>
-        import(/* webpackChunkName: "TourEdit" */ "./views/TourEdit.vue")
+        import(/* webpackChunkName: "TourEdit" */ "./views/TourEdit.vue"),
+      meta: {
+        requiresAuth: true
+      },
+      props: true
     }
   ]
 });

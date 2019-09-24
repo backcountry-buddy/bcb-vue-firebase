@@ -17,6 +17,7 @@
       Posted by
       <router-link
         class="link"
+        v-if="tour.creatorRef.id"
         :to="{ name: 'userDetail', params: { uid: tour.creatorRef.id } }"
       >
         {{ tour.creatorRef.displayName }}
@@ -42,8 +43,7 @@ export default {
   data: function() {
     return {
       isAuthenticated: false,
-      currentUser: {},
-      tours: null
+      currentUser: {}
     };
   },
 

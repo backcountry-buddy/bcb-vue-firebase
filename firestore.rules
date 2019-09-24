@@ -1,10 +1,6 @@
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    match /configs/{config} {
-      allow read;
-    }
-    
     match /countries/{country} {
       allow read;
       allow write: if false;
@@ -34,7 +30,6 @@ service cloud.firestore {
 
     match /users/{user} {
     	allow get;
-      allow list: if false;
       allow create: if request.auth.uid != null;
       allow update, delete: if request.auth.uid == user;
     }

@@ -1,4 +1,4 @@
-name: Deploy Firebase
+name: Deploy
 
 on:
   push:
@@ -14,13 +14,16 @@ jobs:
       - name: Use Node.js 10.x
         uses: actions/setup-node@v1
         with:
-          node-version: '10.x'
+          node-version: 10.x
       - run: yarn global add firebase-tools
-      - name: yarn install, build and deploy
-        run: |
-          yarn install
-          yarn run build
-          firebase deploy --token "$FIREBASE_TOKEN" --only hosting,firestore:rules,firestore:indexes,functions
+      - name: Install Dependencies
+        run: yarn install
+      - name: Build Project
+        run: yarn run build
+      - name: Deploy Firebase Project
+        uses: w9jds/firebase-action@develop
+        with:
+          args: deploy --only hosting,firestore:rules,firestore:indexes,functions
         env:
           CI: true
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}

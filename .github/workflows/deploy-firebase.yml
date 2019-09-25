@@ -15,13 +15,14 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: 10.x
-      - run: yarn global add firebase-tools
-      - name: Install Dependencies
+      - name: Install Firebase Function dependencies
+        run: cd functions && npm install
+      - name: Install Project Dependencies
         run: yarn install
       - name: Build Project
         run: yarn run build
       - name: Deploy Firebase Project
-        uses: w9jds/firebase-action@develop
+        uses: w9jds/firebase-action@master
         with:
           args: deploy --only hosting,firestore:rules,firestore:indexes,functions
         env:

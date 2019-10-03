@@ -15,7 +15,7 @@
       label="Filter planned tours by location"
     />
     <ul v-if="tours.length">
-      <TourListCard v-for="(tour, index) in tours" :key="index" :tour="tour" />
+      <TourListCard v-for="tour in tours" :key="tour.id" :tour="tour" />
     </ul>
     <div v-else class="text-center">
       No tours found.

@@ -9,9 +9,9 @@ import { db } from "@/config/firebase";
 import UserProfile from "@/components/UserProfile.vue";
 
 export default {
+  props: ["uid"],
   data() {
     return {
-      uid: this.$route.params.uid,
       profile: {}
     };
   },

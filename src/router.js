@@ -15,7 +15,6 @@ const router = new Router({
       component: Home
     },
     {
-      // TODO: we also need a public profile version, e.g. /users/uid
       path: "/profile",
       name: "profile",
       component: () =>
@@ -28,7 +27,8 @@ const router = new Router({
       path: "/users/:uid",
       name: "userDetail",
       component: () =>
-        import(/* webpackChunkName: "UserDetail" */ "./views/UserDetail.vue")
+        import(/* webpackChunkName: "UserDetail" */ "./views/UserDetail.vue"),
+      props: true
     },
     {
       path: "/tours/new",

@@ -16,6 +16,7 @@
       <input
         type="email"
         v-model="email"
+        name="email"
         class="form-input-xs focus:shadow-outline mb-1"
         placeholder="Your email"
         autocomplete="username"

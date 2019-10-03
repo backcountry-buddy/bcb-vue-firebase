@@ -20,11 +20,11 @@
           <span v-if="isCreator">you</span>
           <span v-else>
             <router-link
+              v-if="creator.id"
               class="link"
-              v-if="tour.creatorRef.id"
-              :to="{ name: 'userDetail', params: { uid: tour.creatorRef.id } }"
+              :to="{ name: 'userDetail', params: { uid: creator.id } }"
             >
-              {{ tour.creatorRef.displayName }}
+              {{ creator.displayName }}
             </router-link>
           </span>
         </span>
@@ -98,6 +98,7 @@ export default {
   data: function() {
     return {
       buddies: [],
+      creator: {},
       currentUser: {}
     };
   },
@@ -121,7 +122,7 @@ export default {
       return d.toLocaleString(DateTime.DATE_MED);
     },
     isCreator() {
-      return this.currentUser.uid === this.tour.creatorRef.id;
+      return this.currentUser.uid === this.creator.id;
     },
     canJoin() {
       return this.buddies.reduce((acc, buddy) => {
@@ -166,6 +167,17 @@ export default {
         );
       }
     }
+  },
+
+  firestore() {
+    // FIXME: not fully undestanding why this reference is sometimes bound
+    // automatically and sometimes it's not
+    const creatorDoc = this.tour.creatorRef.id
+      ? db.collection("users").doc(this.tour.creatorRef.id)
+      : db.doc(this.tour.creatorRef);
+    return {
+      creator: creatorDoc
+    };
   }
 };
 </script>

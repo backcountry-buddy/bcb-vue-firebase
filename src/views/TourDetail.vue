@@ -1,13 +1,8 @@
 <template>
-  <li class="border border-gray-200 bg-gray-100 p-2 mb-2">
-    <h4 class="flex justify-between mb-1">
+  <div class="mt-4">
+    <h2 class="flex justify-between mb-1">
       <div class="flex flex-col">
-        <router-link
-          class="font-semibold text-lg underline"
-          :to="{ name: 'tourDetail', params: { id: tour.id } }"
-        >
-          {{ tour.title }}
-        </router-link>
+        <span class="font-semibold text-lg">{{ tour.title }}</span>
         <span class="text-xs font-light">{{ tourDate }}</span>
       </div>
       <div class="flex flex-col items-end">
@@ -16,33 +11,38 @@
           >{{ tour.state }}, {{ tour.country }}</span
         >
       </div>
-    </h4>
-    <p class="">{{ tour.description }}</p>
-    <div class="flex justify-between items-end">
-      <div class="font-light text-sm mt-1">
-        <span class="font-semibold">
+    </h2>
+    <p class="mb-2 mt-4">{{ tour.description }}</p>
+
+    <div
+      class="flex justify-between items-end bg-gray-100 border border-gray-200 p-1 mt-4"
+    >
+      <div class="mt-1 text-sm">
+        <h3 class="font-semibold mb-2">
           Lead by
           <span v-if="isCreator">you</span>
           <span v-else>
             <router-link
-              v-if="creator.id"
+              v-if="tour.creatorRef && tour.creatorRef.id"
               class="link"
-              :to="{ name: 'userDetail', params: { uid: creator.id } }"
+              :to="{ name: 'userDetail', params: { uid: tour.creatorRef.id } }"
             >
-              {{ creator.displayName }}
+              {{ tour.creatorRef.displayName }}
             </router-link>
           </span>
-        </span>
+        </h3>
         <div v-if="buddies.length">
-          Joined by
-          {{ buddies.length }}
-          <span v-if="buddies.length > 1">buddies</span>
-          <span v-else>buddy</span>
-          <span v-if="isAuthenticated">:</span>
+          <h3 class="font-light">
+            Joined by
+            {{ buddies.length }}
+            <span v-if="buddies.length > 1">buddies</span>
+            <span v-else>buddy</span>
+            <span v-if="isAuthenticated">:</span>
+          </h3>
           <ul v-if="isAuthenticated" class="pl-2">
-            <li v-for="buddy in buddies" :key="buddy.id">
+            <li class="font-light" v-for="buddy in buddies" :key="buddy.id">
               <router-link
-                class="link"
+                class="link text-sm"
                 :to="{ name: 'userDetail', params: { uid: buddy.id } }"
               >
                 {{ buddy.displayName }}</router-link
@@ -91,22 +91,56 @@
         </div>
       </div>
     </div>
-  </li>
-</template>
 
+    <h3 class="font-semibold mb-2 mt-8">Leave a comment:</h3>
+    <div class="mt-4">
+      <form class="flex flex-col items-end mb-2" @submit="saveComment">
+        <textarea
+          v-model="newComment"
+          name="comment-from"
+          class="form-input-sm w-full resize-none mb-1 border border-gray-200"
+          rows="3"
+          placeholder="Leave a comment..."
+        ></textarea>
+        <button
+          type="submit"
+          class="form-button outline-none focus:outline-none"
+        >
+          <span v-if="isAuthenticated">Submit</span>
+          <span v-else>Login to submit</span>
+        </button>
+      </form>
+
+      <h3 class="font-semibold mb-2">
+        {{ comments.length }} Comment<span v-if="comments.length > 1">s</span>:
+      </h3>
+
+      <ul>
+        <li class="my-2" v-for="comment in comments" :key="comment.id">
+          <TourComment :comment="comment" />
+        </li>
+      </ul>
+    </div>
+  </div>
+</template>
 <script>
-import { auth, db } from "@/config/firebase";
+import { auth, db, firestore } from "@/config/firebase";
 import { DateTime } from "luxon";
+import TourComment from "@/components/TourComment.vue";
 
 export default {
-  props: { tour: Object },
-  data: function() {
+  props: ["id"],
+  data() {
     return {
+      tour: {},
       buddies: [],
-      creator: {},
-      currentUser: {}
+      comments: [],
+      currentUser: {},
+      newComment: ""
     };
   },
+
+  components: { TourComment },
 
   created() {
     const currentUser = auth.currentUser;
@@ -116,18 +150,38 @@ export default {
     }
   },
 
+  firestore() {
+    return {
+      tour: db.collection("tours").doc(this.id),
+      buddies: db
+        .collection("tours")
+        .doc(this.id)
+        .collection("buddies"),
+      comments: db
+        .collection("tours")
+        .doc(this.id)
+        .collection("comments")
+        .orderBy("created", "desc")
+    };
+  },
+
   computed: {
     isAuthenticated() {
       return !!this.currentUser.uid;
     },
     tourDate() {
+      if (!this.tour.plannedOn) {
+        return;
+      }
       const d = DateTime.fromSeconds(this.tour.plannedOn.seconds, {
         zone: "utc"
       });
       return d.toLocaleString(DateTime.DATE_MED);
     },
     isCreator() {
-      return this.currentUser.uid === this.creator.id;
+      return (
+        this.tour.creatorRef && this.currentUser.uid === this.tour.creatorRef.id
+      );
     },
     canJoin() {
       return this.buddies.reduce((acc, buddy) => {
@@ -156,33 +210,24 @@ export default {
     focusLogin() {
       window.scrollTo(0, 0);
       document.querySelector("input[name=email").focus();
+    },
+    saveComment(evt) {
+      evt.preventDefault();
+      if (!this.isAuthenticated) return;
+      const authorRef = db.collection("users").doc(this.currentUser.uid);
+      const created = firestore.FieldValue.serverTimestamp();
+      const body = this.newComment;
+      const comment = {
+        authorRef,
+        created,
+        body
+      };
+      db.collection("tours")
+        .doc(this.id)
+        .collection("comments")
+        .add(comment);
+      this.newComment = "";
     }
-  },
-
-  watch: {
-    tour: {
-      immediate: true,
-      handler(tour) {
-        this.$bind(
-          "buddies",
-          db
-            .collection("tours")
-            .doc(tour.id)
-            .collection("buddies")
-        );
-      }
-    }
-  },
-
-  firestore() {
-    // FIXME: not fully undestanding why this reference is sometimes bound
-    // automatically and sometimes it's not
-    const creatorDoc = this.tour.creatorRef.id
-      ? db.collection("users").doc(this.tour.creatorRef.id)
-      : db.doc(this.tour.creatorRef);
-    return {
-      creator: creatorDoc
-    };
   }
 };
 </script>

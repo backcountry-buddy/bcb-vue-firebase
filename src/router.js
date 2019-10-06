@@ -48,6 +48,13 @@ const router = new Router({
         requiresAuth: true
       },
       props: true
+    },
+    {
+      path: "/tours/:id",
+      name: "tourDetail",
+      component: () =>
+        import(/* webpackChunkName: "TourDetail" */ "./views/TourDetail.vue"),
+      props: true
     }
   ]
 });

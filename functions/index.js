@@ -52,3 +52,25 @@ exports.createLocationParents = functions.firestore
     });
     return Promise.all(queries);
   });
+
+// Buddy counts
+exports.incrementBuddyCount = functions.firestore
+  .document("tours/{tourId}/buddies/{buddyId}")
+  .onCreate((snap, context) => {
+    const tourId = context.params.tourId;
+    const nrBuddies = admin.firestore.FieldValue.increment(1);
+    return db
+      .collection("tours")
+      .doc(tourId)
+      .update({ nrBuddies });
+  });
+exports.decrementBuddyCount = functions.firestore
+  .document("tours/{tourId}/buddies/{buddyId}")
+  .onDelete((snap, context) => {
+    const tourId = context.params.tourId;
+    const nrBuddies = admin.firestore.FieldValue.increment(-1);
+    return db
+      .collection("tours")
+      .doc(tourId)
+      .update({ nrBuddies });
+  });

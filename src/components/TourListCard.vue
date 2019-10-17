@@ -1,95 +1,49 @@
 <template>
   <li class="border border-gray-200 bg-gray-100 p-2 mb-2">
-    <h4 class="flex justify-between mb-1">
-      <div class="flex flex-col">
+    <h4 class="flex flex-col justify-between">
+      <div class="flex justify-between">
         <router-link
           class="font-semibold text-lg underline"
           :to="{ name: 'tourDetail', params: { id: tour.id } }"
         >
           {{ tour.title }}
         </router-link>
-        <span class="text-xs font-light">{{ tourDate }}</span>
+        <span class="text-xs font-light whitespace-no-wrap pt-2">{{
+          tourDate
+        }}</span>
       </div>
-      <div class="flex flex-col items-end">
+      <div class="flex flex-col">
         <span class="font-light">{{ tour.location }}</span>
         <span class="font-light text-xs"
           >{{ tour.state }}, {{ tour.country }}</span
         >
       </div>
     </h4>
-    <p class="">{{ tour.description }}</p>
+    <p class="mt-2 mb-2 truncate">{{ tour.description }}</p>
     <div class="flex justify-between items-end">
-      <div class="font-light text-sm mt-1">
-        <span class="font-semibold">
-          Lead by
-          <span v-if="isCreator">you</span>
-          <span v-else>
-            <router-link
-              v-if="creator.id"
-              class="link"
-              :to="{ name: 'userDetail', params: { uid: creator.id } }"
-            >
-              {{ creator.displayName }}
-            </router-link>
-          </span>
+      <div class="font-light text-sm">
+        <span v-if="isCreator">You</span>
+        <span v-else>
+          <router-link
+            v-if="creator.id"
+            class="link"
+            :to="{ name: 'userDetail', params: { uid: creator.id } }"
+            >{{ creator.displayName }}
+          </router-link>
         </span>
-        <div v-if="buddies.length">
-          Joined by
-          {{ buddies.length }}
-          <span v-if="buddies.length > 1">buddies</span>
+        <span v-if="tour.nrBuddies">
+          and
+          {{ tour.nrBuddies }}
+          <span v-if="tour.nrBuddies > 1">buddies</span>
           <span v-else>buddy</span>
-          <span v-if="isAuthenticated">:</span>
-          <ul v-if="isAuthenticated" class="pl-2">
-            <li v-for="buddy in buddies" :key="buddy.id">
-              <router-link
-                class="link"
-                :to="{ name: 'userDetail', params: { uid: buddy.id } }"
-              >
-                {{ buddy.displayName }}</router-link
-              >
-              <span v-if="isCreator">
-                (<a
-                  :href="`mailto:${buddy.email}?subject=${tour.title}`"
-                  title="Send an email"
-                  >{{ buddy.email }}</a
-                >)</span
-              >
-            </li>
-          </ul>
-        </div>
+        </span>
       </div>
-      <div class="flex justify-end">
-        <button
-          v-if="!isAuthenticated"
-          type="button"
-          @click="focusLogin"
-          class="link text-sm"
-        >
-          Login to join this tour!
-        </button>
-        <router-link
-          class="form-button mt-1"
-          v-if="isCreator"
-          :to="{ name: 'tourEdit', params: { id: tour.id } }"
-          >Edit</router-link
-        >
-        <div v-else>
-          <button
-            v-if="canJoin"
-            @click="joinTour"
-            class="text-xs bg-green-100 py-1 px-2 border border-green-500"
-          >
-            Join
-          </button>
-          <button
-            v-else-if="isAuthenticated"
-            @click="leaveTour"
-            class="text-xs bg-red-100 py-1 px-2 ml-1 border border-red-300 outline-none"
-          >
-            Leave
-          </button>
-        </div>
-      </div>
+      <router-link
+        class="form-button mt-1"
+        v-if="isCreator"
+        :to="{ name: 'tourEdit', params: { id: tour.id } }"
+        >Edit</router-link
+      >
     </div>
   </li>
 </template>
@@ -129,48 +83,11 @@ export default {
     isCreator() {
       return this.currentUser.uid === this.creator.id;
     },
-    canJoin() {
-      return this.buddies.reduce((acc, buddy) => {
-        return acc && this.currentUser.uid !== buddy.id;
-      }, this.isAuthenticated);
-    }
-  },
-
-  methods: {
-    joinTour() {
-      const { email, displayName, uid } = this.currentUser;
-      db.collection("tours")
+    nrBuddies() {
+      return db
+        .collection("tours")
         .doc(this.tour.id)
-        .collection("buddies")
-        .doc(uid)
-        .set({ email, displayName });
-    },
-    leaveTour() {
-      const { uid } = this.currentUser;
-      db.collection("tours")
-        .doc(this.tour.id)
-        .collection("buddies")
-        .doc(uid)
-        .delete();
-    },
-    focusLogin() {
-      window.scrollTo(0, 0);
-      document.querySelector("input[name=email").focus();
-    }
-  },
-
-  watch: {
-    tour: {
-      immediate: true,
-      handler(tour) {
-        this.$bind(
-          "buddies",
-          db
-            .collection("tours")
-            .doc(tour.id)
-            .collection("buddies")
-        );
-      }
+        .collection("buddies");
     }
   },
 

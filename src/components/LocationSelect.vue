@@ -1,62 +1,62 @@
 <template>
   <div>
-    <label v-if="label" for="location" class="mb-2 italic font-light text-sm">
-      {{ label }}
-    </label>
-    <div class="flex justify-between items-center">
-      <div>
-        <select
-          v-model="selectedCountry"
-          @change="selectLocation('country')"
-          class="bg-gray-200 text-sm"
-          name="country"
-        >
-          <option value>Select a country</option>
-          <option v-for="country in countries" v-bind:key="country.id">{{
-            country.name
-          }}</option>
-        </select>
-        <select
-          v-if="!!selectedCountry"
-          v-model="selectedState"
-          @change="selectLocation('state')"
-          class="ml-2 bg-gray-200 text-sm"
-          name="state"
-        >
-          <option value>Select a state</option>
-          <option v-for="state in states" v-bind:key="state.id">
-            {{ state.name }}</option
-          >
-        </select>
-        <select
-          v-if="!!selectedState"
-          v-model="selectedRegion"
-          @change="selectLocation('region')"
-          class="ml-2 bg-gray-200 text-sm"
-          name="region"
-        >
-          <option value>Select a region</option>
-          <option v-for="region in regions" v-bind:key="region.id">{{
-            region.name
-          }}</option>
-        </select>
-
-        <select
-          v-if="!!selectedRegion"
-          v-model="selectedLocation"
-          @change="selectLocation('location')"
-          class="ml-2 bg-gray-200 text-sm"
-          name="location"
-        >
-          <option value>Select a location</option>
-          <option v-for="location in locations" v-bind:key="location.id">{{
-            location.name
-          }}</option>
-        </select>
-      </div>
+    <div class="flex justify-between items-start items-center mb-2">
+      <label v-if="label" for="location" class="mb-2 italic font-light text-sm">
+        {{ label }}
+      </label>
       <button type="button" class="form-button" @click="resetSelection">
         Reset
       </button>
+    </div>
+    <div class="flex flex-col md:flex-row">
+      <select
+        v-model="selectedCountry"
+        @change="selectLocation('country')"
+        class="p-2 mb-2 md:mb-0 bg-gray-200 text-sm"
+        name="country"
+      >
+        <option value>Select a country</option>
+        <option v-for="country in countries" v-bind:key="country.id">{{
+          country.name
+        }}</option>
+      </select>
+      <select
+        v-if="!!selectedCountry"
+        v-model="selectedState"
+        @change="selectLocation('state')"
+        class="p-2 mb-2 md:ml-2 md:mb-0 bg-gray-200 text-sm"
+        name="state"
+      >
+        <option value>Select a state</option>
+        <option v-for="state in states" v-bind:key="state.id">
+          {{ state.name }}</option
+        >
+      </select>
+      <select
+        v-if="!!selectedState"
+        v-model="selectedRegion"
+        @change="selectLocation('region')"
+        class="p-2 mb-2 md:ml-2 md:mb-0 bg-gray-200 text-sm"
+        name="region"
+      >
+        <option value>Select a region</option>
+        <option v-for="region in regions" v-bind:key="region.id">{{
+          region.name
+        }}</option>
+      </select>
+
+      <select
+        v-if="!!selectedRegion"
+        v-model="selectedLocation"
+        @change="selectLocation('location')"
+        class="p-2 mb-2 md:ml-2 md:mb-0 bg-gray-200 text-sm"
+        name="location"
+      >
+        <option value>Select a location</option>
+        <option v-for="location in locations" v-bind:key="location.id">{{
+          location.name
+        }}</option>
+      </select>
     </div>
   </div>
 </template>

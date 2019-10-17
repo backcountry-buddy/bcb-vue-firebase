@@ -1,5 +1,5 @@
 <template>
-  <li class="border border-gray-200 bg-gray-100 p-2 mb-2">
+  <li class="border border-gray-200 bg-gray-100 p-2 mb-2 shadow">
     <h4 class="flex flex-col justify-between">
       <div class="flex justify-between">
         <router-link

@@ -5,6 +5,7 @@
       title="Edit your tour"
       :tour="tour"
       @save="saveTour"
+      @delete="deleteTour"
     />
   </div>
 </template>
@@ -12,8 +13,6 @@
 <script>
 import { firestore, db } from "@/config/firebase";
 import TourForm from "@/components/TourForm.vue";
-
-const tours = db.collection("tours");
 
 export default {
   props: ["id"],
@@ -26,13 +25,10 @@ export default {
 
   components: { TourForm },
 
-  watch: {
-    id: {
-      immediate: true,
-      handler(id) {
-        this.$bind("tour", tours.doc(id));
-      }
-    }
+  firestore() {
+    return {
+      tour: db.collection("tours").doc(this.id)
+    };
   },
 
   methods: {
@@ -42,6 +38,13 @@ export default {
         .collection("tours")
         .doc(this.id)
         .set(tourData);
+      this.$router.push({ name: "home" });
+    },
+    async deleteTour(tourId) {
+      await db
+        .collection("tours")
+        .doc(tourId)
+        .delete();
       this.$router.push({ name: "home" });
     }
   }

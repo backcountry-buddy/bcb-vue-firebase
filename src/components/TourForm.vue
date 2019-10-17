@@ -10,7 +10,16 @@
         >
           Cancel
         </button>
-        <button type="submit" class="form-button">Save tour</button>
+        <button
+          type="submit"
+          :disabled="isEditing && !currentUserIsCreator"
+          class="form-button"
+          :class="{
+            'opacity-50 cursor-not-allowed': isEditing && !currentUserIsCreator
+          }"
+        >
+          Save
+        </button>
       </h2>
 
       <div class="flex justify-between mb-2">
@@ -21,7 +30,7 @@
             id="title"
             v-model="tour.title"
             class="form-input-sm focus:shadow-outline"
-            placeholder="Half day on the Sherburne Trail"
+            placeholder="A short title for your tour"
           />
         </div>
         <div class="flex flex-col">
@@ -153,15 +162,39 @@
         class="form-input-sm focus:shadow-outline mb-1 resize-none"
       ></textarea>
 
-      <div class="text-right mt-4">
-        <button
-          type="button"
-          @click="goBack"
-          class="form-button text-gray-600 mr-2"
-        >
-          Cancel
-        </button>
-        <button type="submit" class="form-button">Save tour</button>
+      <div class="mt-4 flex justify-between">
+        <div>
+          <button
+            v-if="isEditing"
+            type="button"
+            :disabled="!currentUserIsCreator"
+            class="form-button-red text-gray-100"
+            :class="{ 'opacity-50 cursor-not-allowed': !currentUserIsCreator }"
+            @click="$emit('delete', tour.id)"
+          >
+            Delete
+          </button>
+        </div>
+        <div>
+          <button
+            type="button"
+            @click="goBack"
+            class="form-button text-gray-600 mr-2"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            :disabled="isEditing && !currentUserIsCreator"
+            class="form-button"
+            :class="{
+              'opacity-50 cursor-not-allowed':
+                isEditing && !currentUserIsCreator
+            }"
+          >
+            Save
+          </button>
+        </div>
       </div>
     </form>
   </div>
@@ -219,6 +252,11 @@ export default {
   methods: {
     async onFormSubmit(evt) {
       evt.preventDefault();
+      // only creator can update
+      if (this.isEditing && !this.currentUserIsCreator) {
+        return;
+      }
+
       if (this.isAddingLocation) {
         this.tour.locationRef = await this.createNewLocation(this.location);
       }
@@ -303,6 +341,15 @@ export default {
       return DateTime.fromSeconds(seconds, {
         zone: "utc"
       }).toISODate();
+    },
+
+    isEditing() {
+      return !!this.tour.id;
+    },
+    currentUserIsCreator() {
+      return (
+        this.tour.creatorRef && this.tour.creatorRef.id === this.currentUser.uid
+      );
     }
   }
 };

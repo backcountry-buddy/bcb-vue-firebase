@@ -4,9 +4,9 @@
       Planned Tours
       <router-link
         v-if="isAuthenticated"
-        to="/tours/new"
-        class="bg-gray-200 py-1 px-2 shadow"
-        >Post a new tour</router-link
+        to="/tours/plan"
+        class="bg-orange-200 py-1 px-2 shadow text-sm"
+        >Plan a tour!</router-link
       >
     </h2>
     <LocationSelect

@@ -31,7 +31,7 @@ const router = new Router({
       props: true
     },
     {
-      path: "/tours/new",
+      path: "/tours/plan",
       name: "tourCreate",
       component: () =>
         import(/* webpackChunkName: "TourCreate" */ "./views/TourCreate.vue"),

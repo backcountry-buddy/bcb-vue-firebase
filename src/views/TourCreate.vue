@@ -1,5 +1,5 @@
 <template>
-  <TourForm title="Post a new tour" :tour="tour" @save="createTour" />
+  <TourForm title="Plan a tour" :tour="tour" @save="createTour" />
 </template>
 
 <script>

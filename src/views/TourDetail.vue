@@ -235,10 +235,10 @@ export default {
     },
     saveComment(evt) {
       evt.preventDefault();
-      if (!this.isAuthenticated) return;
+      const body = this.newComment;
+      if (!this.isAuthenticated || !body) return;
       const authorRef = db.collection("users").doc(this.currentUser.uid);
       const created = firestore.FieldValue.serverTimestamp();
-      const body = this.newComment;
       const comment = {
         authorRef,
         created,

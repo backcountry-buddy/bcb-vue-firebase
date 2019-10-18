@@ -88,14 +88,14 @@
           <button
             v-if="canJoin"
             @click="joinTour"
-            class="text-xs bg-green-100 py-1 px-2 border border-green-500"
+            class="text-xs bg-green-100 py-1 px-2 border border-green-500 shadow"
           >
             Join tour
           </button>
           <button
             v-else-if="isAuthenticated"
             @click="leaveTour"
-            class="text-xs bg-red-100 py-1 px-2 ml-1 border border-red-300 outline-none"
+            class="text-xs bg-red-100 py-1 px-2 ml-1 border border-red-300 outline-none shadow"
           >
             Leave tour
           </button>

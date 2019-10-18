@@ -13,7 +13,7 @@
         <button
           type="submit"
           :disabled="isEditing && !currentUserIsCreator"
-          class="form-button"
+          class="form-button-green"
           :class="{
             'opacity-50 cursor-not-allowed': isEditing && !currentUserIsCreator
           }"
@@ -168,7 +168,7 @@
             v-if="isEditing"
             type="button"
             :disabled="!currentUserIsCreator"
-            class="form-button-red text-gray-100"
+            class="form-button-red"
             :class="{ 'opacity-50 cursor-not-allowed': !currentUserIsCreator }"
             @click="$emit('delete', tour.id)"
           >
@@ -186,7 +186,7 @@
           <button
             type="submit"
             :disabled="isEditing && !currentUserIsCreator"
-            class="form-button"
+            class="form-button-green"
             :class="{
               'opacity-50 cursor-not-allowed':
                 isEditing && !currentUserIsCreator

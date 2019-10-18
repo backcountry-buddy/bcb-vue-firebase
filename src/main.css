@@ -23,5 +23,9 @@
 }
 
 .form-button-red {
-  @apply text-xs bg-red-400 py-1 px-2 border shadow;
+  @apply text-xs text-gray-100 bg-red-400 py-1 px-2 shadow;
+}
+
+.form-button-green {
+  @apply text-xs text-gray-100 bg-green-400 py-1 px-2 shadow;
 }

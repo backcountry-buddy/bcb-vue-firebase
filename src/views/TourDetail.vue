@@ -65,6 +65,7 @@
                 (<a
                   :href="`mailto:${buddy.email}?subject=${tour.title}`"
                   title="Send an email"
+                  class="link"
                   >{{ buddy.email }}</a
                 >)</span
               >

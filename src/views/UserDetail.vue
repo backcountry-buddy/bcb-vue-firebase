@@ -1,6 +1,6 @@
 <template>
   <div class="mt-4">
-    <UserProfile :profile="profile" />
+    <UserProfile v-if="profile.id" :profile="profile" />
   </div>
 </template>
 

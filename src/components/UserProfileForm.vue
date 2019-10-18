@@ -1,6 +1,6 @@
 <template>
-  <form @submit="onFormSubmit" class="flex flex-col">
-    <h2 class="font-bold mb-2 flex justify-between">
+  <form @submit="onFormSubmit" class="flex flex-col mb-4">
+    <h2 class="font-bold flex justify-between sticky top-0 bg-white py-2">
       Edit your public profile
       <div>
         <button
@@ -14,34 +14,34 @@
       </div>
     </h2>
 
-    <label for="display-name" class="text-sm italic">Name</label>
+    <label for="display-name" class="text-sm text-gray-600 italic">Name</label>
     <input
       type="text"
       name="display-name"
       v-model="profile.displayName"
-      class="form-input-xs focus:shadow-outline mb-1"
+      class="form-input-sm focus:shadow-outline mb-1"
       placeholder="Nickname, real name or initials."
     />
 
-    <label for="home-location" class="text-sm italic mt-2"
+    <label for="home-location" class="text-sm text-gray-600 italic mt-2"
       >Home location or area</label
     >
     <input
       type="text"
       name="home-location"
       v-model="profile.homeLocation"
-      class="form-input-xs focus:shadow-outline mb-1"
+      class="form-input-sm focus:shadow-outline mb-1"
       placeholder="City or general area you live in"
     />
 
-    <label for="experience-level" class="text-sm italic mt-2"
+    <label for="experience-level" class="text-sm text-gray-600 italic mt-2"
       >Experience level</label
     >
     <!-- TODO: generate from config -->
     <select
       name="experience-level"
       v-model="profile.experienceLevel"
-      class="form-input-xs focus:shadow-outline mb-1"
+      class="form-input-sm focus:shadow-outline mb-1"
     >
       <option value="1">I - On-piste double black diamond</option>
       <option value="2">II - Off-piste trees and glades</option>
@@ -50,7 +50,7 @@
       <option value="5">V - Backcountry couliers and steeps</option>
     </select>
 
-    <label for="travel-destinations" class="text-sm italic mt-2"
+    <label for="travel-destinations" class="text-sm text-gray-600 italic mt-2"
       >Areas I'm willing to traveling to</label
     >
     <textarea
@@ -58,10 +58,10 @@
       v-model="profile.travelDestinations"
       rows="3"
       placeholder="List of cities or areas you're willing to travel to"
-      class="form-input-xs focus:shadow-outline mb-1 resize-none"
+      class="form-input-sm focus:shadow-outline mb-1 resize-none"
     ></textarea>
 
-    <label for="experience-locations" class="text-sm italic mt-2"
+    <label for="experience-locations" class="text-sm text-gray-600 italic mt-2"
       >Areas I have experience in</label
     >
     <textarea
@@ -69,10 +69,10 @@
       v-model="profile.experienceLocations"
       rows="3"
       placeholder="List of areas you're experienced with"
-      class="form-input-xs focus:shadow-outline mb-1 resize-none"
+      class="form-input-sm focus:shadow-outline mb-1 resize-none"
     ></textarea>
 
-    <label for="aiare" class="text-sm italic mt-2"
+    <label for="aiare" class="text-sm text-gray-600 italic mt-2"
       >Completed avalanche trainings</label
     >
     <textarea
@@ -80,19 +80,21 @@
       v-model="profile.aiare"
       rows="3"
       placeholder="List of trainings and courses your completed"
-      class="form-input-xs focus:shadow-outline mb-1 resize-none"
+      class="form-input-sm focus:shadow-outline mb-1 resize-none"
     ></textarea>
 
-    <label for="pack" class="text-sm italic mt-2">What's in your pack?</label>
+    <label for="pack" class="text-sm text-gray-600 italic mt-2"
+      >What's in your pack?</label
+    >
     <textarea
       name="pack"
       v-model="profile.pack"
       rows="3"
       placeholder="Describe what's typically in your pack"
-      class="form-input-xs focus:shadow-outline mb-1 resize-none"
+      class="form-input-sm focus:shadow-outline mb-1 resize-none"
     ></textarea>
 
-    <label for="otherInfo" class="text-sm italic mt-2"
+    <label for="otherInfo" class="text-sm text-gray-600 italic mt-2"
       >Other intersting things about me:</label
     >
     <textarea
@@ -100,7 +102,7 @@
       v-model="profile.otherInfo"
       rows="3"
       placeholder="Other interesting details about me"
-      class="form-input-xs focus:shadow-outline mb-1 resize-none"
+      class="form-input-sm focus:shadow-outline mb-1 resize-none"
     ></textarea>
 
     <div class="text-right mt-4">

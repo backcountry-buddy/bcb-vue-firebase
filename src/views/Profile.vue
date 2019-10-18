@@ -6,15 +6,19 @@
       :profile="profile"
       :currentUser="currentUser"
     />
-    <div v-else>
+    <div v-else class="mt-4">
       <div v-if="hasProfile">
-        <h2 class="font-semibold mb-2 flex justify-between">
-          Your public profile
+        <UserProfile :profile="profile" :currentUser="currentUser"
+          ><router-link
+            class="link-xs mr-2"
+            :to="{ name: 'userDetail', params: { uid: currentUser.uid } }"
+          >
+            Public profile</router-link
+          >
           <button type="button" class="form-button" @click="toggleEditing">
             Edit Profile
-          </button>
-        </h2>
-        <UserProfile :profile="profile" :currentUser="currentUser" />
+          </button></UserProfile
+        >
       </div>
       <div v-else class="text-center">
         <p class="mb-2">You don't have a public profile.</p>

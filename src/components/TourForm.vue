@@ -22,9 +22,9 @@
         </button>
       </h2>
 
-      <div class="flex justify-between mb-2">
-        <div class="flex flex-col flex-grow mr-2">
-          <label for="title" class="text-sm italic mt-2">Title </label>
+      <div class="flex flex-col md:flex-row md:justify-between md:mb-2">
+        <div class="flex flex-col flex-grow mb-2 md:mb-0 md:mr-2">
+          <label for="title" class="text-sm italic mt-2">Tour title</label>
           <input
             type="text"
             id="title"
@@ -33,8 +33,10 @@
             placeholder="A short title for your tour"
           />
         </div>
-        <div class="flex flex-col">
-          <label for="planned-on" class="text-sm italic mt-2">When?</label>
+        <div class="flex flex-col mb-2 md:mb-0">
+          <label for="planned-on" class="text-sm italic mt-2"
+            >When are you going?</label
+          >
           <input
             type="date"
             id="planned-on"
@@ -45,11 +47,11 @@
         </div>
       </div>
 
-      <label class="text-sm italic mt-2">Where?</label>
-      <div v-if="isAddingLocation">
+      <label class="text-sm italic mt-2">Where are you going?</label>
+      <div v-if="isAddingLocation" class="mb-2 md:mb-0">
         <div class="border p-2">
-          <div class="flex justify-between">
-            <div class="flex flex-col flex-grow pr-2">
+          <div class="flex flex-col md:flex-row md:justify-between">
+            <div class="flex flex-col flex-grow md:pr-2">
               <label for="location-name" class="text-sm italic text-gray-600"
                 >Location Name</label
               >
@@ -62,7 +64,7 @@
                 required
               />
             </div>
-            <div class="flex flex-col w-1/3">
+            <div class="flex flex-col md:w-1/3">
               <label for="coordinates" class="text-sm italic text-gray-600"
                 >Coordinates (Latitude,Longitude)
               </label>
@@ -76,8 +78,8 @@
               />
             </div>
           </div>
-          <div class="flex justify-betwee">
-            <div class="flex flex-col flex-grow pr-2">
+          <div class="flex flex-col md:flex-row md:justify-between">
+            <div class="flex flex-col md:flex-grow md:pr-2">
               <label for="country" class="text-sm italic text-gray-600"
                 >Country
               </label>
@@ -90,7 +92,7 @@
                 required
               />
             </div>
-            <div class="flex flex-col flex-grow pr-2">
+            <div class="flex flex-col md:flex-grow md:pr-2">
               <label for="state" class="text-sm italic text-gray-600"
                 >State
               </label>
@@ -103,7 +105,7 @@
                 required
               />
             </div>
-            <div class="flex flex-col w-1/3">
+            <div class="flex flex-col md:w-1/3">
               <label for="region" class="text-sm italic text-gray-600"
                 >Region
               </label>
@@ -131,10 +133,10 @@
           </button>
         </div>
       </div>
-      <div v-else>
+      <div v-else class="mb-2 md:mb-0">
         <LocationSelect
           class="border p-2"
-          label=""
+          label="Select a location"
           :pre-selected="location"
           @selectLocation="onLocationChange"
         />
@@ -152,8 +154,9 @@
         </div>
       </div>
 
-      <!-- TODO: allow markdown -->
-      <label for="description" class="text-sm italic mt-2">Description</label>
+      <label for="description" class="text-sm italic mt-2 whitespace-pre-wrap"
+        >Tour description</label
+      >
       <textarea
         name="descripton"
         v-model="tour.description"
@@ -162,7 +165,7 @@
         class="form-input-sm focus:shadow-outline mb-1 resize-none"
       ></textarea>
 
-      <div class="mt-4 flex justify-between">
+      <div class="mt-2 md:mt-4 mb-2 md:mb-0 flex justify-between">
         <div>
           <button
             v-if="isEditing"

@@ -1,24 +1,35 @@
 <template>
   <div class="mt-4">
-    <h2 class="flex justify-between mb-1">
-      <div class="flex flex-col">
+    <div class="mb-4 text-right">
+      <router-link
+        class="form-button"
+        v-if="isCreator"
+        :to="{ name: 'tourEdit', params: { id: tour.id } }"
+        >Edit your tour</router-link
+      >
+    </div>
+    <h2 class="py-2 sticky top-0 bg-white">
+      <div class="flex justify-between">
         <span class="font-semibold text-lg">{{ tour.title }}</span>
-        <span class="text-xs font-light">{{ tourDate }}</span>
+        <span class="text-xs font-light whitespace-no-wrap ml-4 pt-2">{{
+          tourDate
+        }}</span>
       </div>
-      <div class="flex flex-col items-end">
+      <div class="flex flex-col">
         <span class="font-light">{{ tour.location }}</span>
         <span class="font-light text-xs"
           >{{ tour.state }}, {{ tour.country }}</span
         >
       </div>
     </h2>
-    <p class="mb-2 mt-4">{{ tour.description }}</p>
+
+    <p class="mb-2 mt-2">{{ tour.description }}</p>
 
     <div
-      class="flex justify-between items-end bg-gray-100 border border-gray-200 p-1 mt-4"
+      class="flex justify-between items-start border-t border-b border-gray-200 p-2 mt-4"
     >
-      <div class="mt-1 text-sm">
-        <h3 class="font-semibold mb-2">
+      <div class="text-sm">
+        <h3 class="mb-2">
           Lead by
           <span v-if="isCreator">you</span>
           <span v-else>
@@ -45,7 +56,10 @@
                 class="link text-sm"
                 :to="{ name: 'userDetail', params: { uid: buddy.id } }"
               >
-                {{ buddy.displayName }}</router-link
+                <span v-if="buddy.id === currentUser.uid" class="font-semibold"
+                  >You</span
+                >
+                <span v-else> {{ buddy.displayName }}</span></router-link
               >
               <span v-if="isCreator">
                 (<a
@@ -57,6 +71,9 @@
             </li>
           </ul>
         </div>
+        <p v-else class="font-light">
+          No tour buddies yet.
+        </p>
       </div>
       <div class="flex justify-end">
         <button
@@ -65,36 +82,29 @@
           @click="focusLogin"
           class="link text-sm"
         >
-          Login to join this tour!
+          Login to join tour!
         </button>
-        <router-link
-          class="form-button mt-1"
-          v-if="isCreator"
-          :to="{ name: 'tourEdit', params: { id: tour.id } }"
-          >Edit</router-link
-        >
-        <div v-else>
+        <div v-if="!isCreator">
           <button
             v-if="canJoin"
             @click="joinTour"
             class="text-xs bg-green-100 py-1 px-2 border border-green-500"
           >
-            Join
+            Join tour
           </button>
           <button
             v-else-if="isAuthenticated"
             @click="leaveTour"
             class="text-xs bg-red-100 py-1 px-2 ml-1 border border-red-300 outline-none"
           >
-            Leave
+            Leave tour
           </button>
         </div>
       </div>
     </div>
 
-    <h3 class="font-semibold mb-2 mt-8">Leave a comment:</h3>
-    <div class="mt-4">
-      <form class="flex flex-col items-end mb-2" @submit="saveComment">
+    <div class="mt-6">
+      <form class="mb-2" @submit="saveComment">
         <textarea
           v-model="newComment"
           name="comment-from"
@@ -102,27 +112,39 @@
           rows="3"
           placeholder="Leave a comment..."
         ></textarea>
-        <button
-          type="submit"
-          class="form-button outline-none focus:outline-none"
-        >
-          <span v-if="isAuthenticated">Submit</span>
-          <span v-else>Login to submit</span>
-        </button>
+        <div class="flex justify-between items-center">
+          <div v-if="comments.length" class="text-sm font-light">
+            {{ comments.length }} Comment<span v-if="comments.length > 1"
+              >s</span
+            >
+          </div>
+          <button
+            v-if="isAuthenticated"
+            type="submit"
+            class="form-button outline-none focus:outline-none"
+          >
+            Submit
+          </button>
+          <button
+            v-else
+            type="button"
+            @click="focusLogin"
+            class="form-button outline-none focus:outline-none"
+          >
+            Login to submit
+          </button>
+        </div>
       </form>
 
-      <h3 class="font-semibold mb-2">
-        {{ comments.length }} Comment<span v-if="comments.length > 1">s</span>:
-      </h3>
-
       <ul>
-        <li class="my-2" v-for="comment in comments" :key="comment.id">
+        <li class="my-4" v-for="comment in comments" :key="comment.id">
           <TourComment :comment="comment" />
         </li>
       </ul>
     </div>
   </div>
 </template>
+
 <script>
 import { auth, db, firestore } from "@/config/firebase";
 import { DateTime } from "luxon";

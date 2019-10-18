@@ -1,7 +1,10 @@
 <template>
-  <div v-if="isAuthenticated" class="flex flex-col items-end">
-    <span class="text-xs mr-2"
-      >Welcome, {{ currentUser.displayName || currentUser.email }}!</span
+  <div v-if="isAuthenticated" class="flex flex-col flex-grow-0 items-end">
+    <span class="text-xs"
+      >Welcome,
+      <span class="whitespace-no-wrap"
+        >{{ currentUser.displayName || currentUser.email }}!</span
+      ></span
     >
     <div>
       <router-link to="/profile" class="link-xs">Profile</router-link>
@@ -11,7 +14,7 @@
       </button>
     </div>
   </div>
-  <div v-else class="w-3/12">
+  <div v-else class="flex-grow-0">
     <form @submit="loginFormSubmit" class="flex flex-col">
       <input
         type="email"

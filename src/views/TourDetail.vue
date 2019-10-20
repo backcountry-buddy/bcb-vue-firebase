@@ -147,19 +147,19 @@
 </template>
 
 <script>
-import { auth, db, firestore } from "@/config/firebase";
-import { DateTime } from "luxon";
-import TourComment from "@/components/TourComment.vue";
+import { auth, db, firestore } from '@/config/firebase';
+import { DateTime } from 'luxon';
+import TourComment from '@/components/TourComment.vue';
 
 export default {
-  props: ["id"],
+  props: ['id'],
   data() {
     return {
       tour: {},
       buddies: [],
       comments: [],
       currentUser: {},
-      newComment: ""
+      newComment: ''
     };
   },
 
@@ -175,16 +175,16 @@ export default {
 
   firestore() {
     return {
-      tour: db.collection("tours").doc(this.id),
+      tour: db.collection('tours').doc(this.id),
       buddies: db
-        .collection("tours")
+        .collection('tours')
         .doc(this.id)
-        .collection("buddies"),
+        .collection('buddies'),
       comments: db
-        .collection("tours")
+        .collection('tours')
         .doc(this.id)
-        .collection("comments")
-        .orderBy("created", "desc")
+        .collection('comments')
+        .orderBy('created', 'desc')
     };
   },
 
@@ -197,7 +197,7 @@ export default {
         return;
       }
       const d = DateTime.fromSeconds(this.tour.plannedOn.seconds, {
-        zone: "utc"
+        zone: 'utc'
       });
       return d.toLocaleString(DateTime.DATE_MED);
     },
@@ -216,40 +216,40 @@ export default {
   methods: {
     joinTour() {
       const { email, displayName, uid } = this.currentUser;
-      db.collection("tours")
+      db.collection('tours')
         .doc(this.tour.id)
-        .collection("buddies")
+        .collection('buddies')
         .doc(uid)
         .set({ email, displayName });
     },
     leaveTour() {
       const { uid } = this.currentUser;
-      db.collection("tours")
+      db.collection('tours')
         .doc(this.tour.id)
-        .collection("buddies")
+        .collection('buddies')
         .doc(uid)
         .delete();
     },
     focusLogin() {
       window.scrollTo(0, 0);
-      document.querySelector("input[name=email").focus();
+      document.querySelector('input[name=email').focus();
     },
     saveComment(evt) {
       evt.preventDefault();
       const body = this.newComment;
       if (!this.isAuthenticated || !body) return;
-      const authorRef = db.collection("users").doc(this.currentUser.uid);
+      const authorRef = db.collection('users').doc(this.currentUser.uid);
       const created = firestore.FieldValue.serverTimestamp();
       const comment = {
         authorRef,
         created,
         body
       };
-      db.collection("tours")
+      db.collection('tours')
         .doc(this.id)
-        .collection("comments")
+        .collection('comments')
         .add(comment);
-      this.newComment = "";
+      this.newComment = '';
     }
   }
 };

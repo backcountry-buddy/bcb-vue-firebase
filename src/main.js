@@ -1,9 +1,9 @@
-import Vue from "vue";
-import App from "./App.vue";
-import { firestorePlugin } from "vuefire";
-import "./main.css";
-import router from "./router";
-import { auth } from "./config/firebase";
+import Vue from 'vue';
+import App from './App.vue';
+import { firestorePlugin } from 'vuefire';
+import './main.css';
+import router from './router';
+import { auth } from './config/firebase';
 
 Vue.use(firestorePlugin);
 
@@ -16,6 +16,6 @@ auth.onAuthStateChanged(() => {
     new Vue({
       router,
       render: h => h(App)
-    }).$mount("#app");
+    }).$mount('#app');
   }
 });

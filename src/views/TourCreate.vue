@@ -3,24 +3,24 @@
 </template>
 
 <script>
-import { firestore, db } from "@/config/firebase";
-import TourForm from "@/components/TourForm.vue";
+import { firestore, db } from '@/config/firebase';
+import TourForm from '@/components/TourForm.vue';
 
 export default {
   data() {
     return {
       tour: {
-        title: "",
-        description: "",
+        title: '',
+        description: '',
         plannedOn: firestore.Timestamp.fromDate(new Date()),
-        creatorRef: "",
-        created: "",
-        locationRef: "",
-        country: "",
-        state: "",
-        region: "",
-        location: "",
-        coordinates: ""
+        creatorRef: '',
+        created: '',
+        locationRef: '',
+        country: '',
+        state: '',
+        region: '',
+        location: '',
+        coordinates: ''
       }
     };
   },
@@ -30,8 +30,8 @@ export default {
   methods: {
     async createTour(tourData) {
       tourData.created = firestore.FieldValue.serverTimestamp();
-      await db.collection("tours").add(tourData);
-      this.$router.push({ name: "home" });
+      await db.collection('tours').add(tourData);
+      this.$router.push({ name: 'home' });
     }
   }
 };

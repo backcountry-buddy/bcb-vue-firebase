@@ -18,7 +18,7 @@
 </template>
 
 <script>
-import { DateTime } from "luxon";
+import { DateTime } from 'luxon';
 
 export default {
   props: { comment: Object },
@@ -27,7 +27,7 @@ export default {
     isShowingRelativeDate() {
       if (!this.comment.created) return;
       const created = DateTime.fromSeconds(this.comment.created.seconds, {
-        zone: "utc"
+        zone: 'utc'
       });
       const sameTimeYesterday = DateTime.local().minus({ days: 1 });
       return created > sameTimeYesterday;
@@ -35,14 +35,14 @@ export default {
     createdDate() {
       if (!this.comment.created) return;
       const d = DateTime.fromSeconds(this.comment.created.seconds, {
-        zone: "utc"
+        zone: 'utc'
       });
       return d.toLocaleString(DateTime.DATETIME_MED);
     },
     relativeDate() {
       if (!this.comment.created) return;
       return DateTime.fromSeconds(this.comment.created.seconds, {
-        zone: "utc"
+        zone: 'utc'
       }).toRelative();
     }
   }

@@ -24,12 +24,12 @@
 </template>
 
 <script>
-import { db, auth } from "@/config/firebase";
-import LocationSelect from "./LocationSelect.vue";
-import TourListCard from "./TourListCard.vue";
+import { db, auth } from '@/config/firebase';
+import LocationSelect from './LocationSelect.vue';
+import TourListCard from './TourListCard.vue';
 
 // TODO: verify this is timezone safe
-const plannedTours = db.collection("tours").where("plannedOn", ">", new Date());
+const plannedTours = db.collection('tours').where('plannedOn', '>', new Date());
 let unsubscribeFirebaseAuth;
 
 export default {
@@ -63,42 +63,42 @@ export default {
         // country
         case 1:
           this.$bind(
-            "tours",
-            plannedTours.where("country", "==", locationFilter.country)
+            'tours',
+            plannedTours.where('country', '==', locationFilter.country)
           );
           break;
         // country + state
         case 2:
           this.$bind(
-            "tours",
+            'tours',
             plannedTours
-              .where("country", "==", locationFilter.country)
-              .where("state", "==", locationFilter.state)
+              .where('country', '==', locationFilter.country)
+              .where('state', '==', locationFilter.state)
           );
           break;
         // country + state + region
         case 3:
           this.$bind(
-            "tours",
+            'tours',
             plannedTours
-              .where("country", "==", locationFilter.country)
-              .where("state", "==", locationFilter.state)
-              .where("region", "==", locationFilter.region)
+              .where('country', '==', locationFilter.country)
+              .where('state', '==', locationFilter.state)
+              .where('region', '==', locationFilter.region)
           );
           break;
         // country + state + region + location
         case 4:
           this.$bind(
-            "tours",
+            'tours',
             plannedTours
-              .where("country", "==", locationFilter.country)
-              .where("state", "==", locationFilter.state)
-              .where("region", "==", locationFilter.region)
-              .where("location", "==", locationFilter.location)
+              .where('country', '==', locationFilter.country)
+              .where('state', '==', locationFilter.state)
+              .where('region', '==', locationFilter.region)
+              .where('location', '==', locationFilter.location)
           );
           break;
         default:
-          this.$bind("tours", plannedTours.limit(20));
+          this.$bind('tours', plannedTours.limit(20));
           break;
       }
     }

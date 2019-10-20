@@ -1,59 +1,59 @@
-import Vue from "vue";
-import Router from "vue-router";
-import Home from "./views/Home.vue";
-import { auth } from "./config/firebase";
+import Vue from 'vue';
+import Router from 'vue-router';
+import Home from './views/Home.vue';
+import { auth } from './config/firebase';
 
 Vue.use(Router);
 
 const router = new Router({
-  mode: "history",
+  mode: 'history',
   base: process.env.BASE_URL,
   routes: [
     {
-      path: "/",
-      name: "home",
+      path: '/',
+      name: 'home',
       component: Home
     },
     {
-      path: "/profile",
-      name: "profile",
+      path: '/profile',
+      name: 'profile',
       component: () =>
-        import(/* webpackChunkName: "Profile" */ "./views/Profile.vue"),
+        import(/* webpackChunkName: "Profile" */ './views/Profile.vue'),
       meta: {
         requiresAuth: true
       }
     },
     {
-      path: "/users/:uid",
-      name: "userDetail",
+      path: '/users/:uid',
+      name: 'userDetail',
       component: () =>
-        import(/* webpackChunkName: "UserDetail" */ "./views/UserDetail.vue"),
+        import(/* webpackChunkName: "UserDetail" */ './views/UserDetail.vue'),
       props: true
     },
     {
-      path: "/tours/plan",
-      name: "tourCreate",
+      path: '/tours/plan',
+      name: 'tourCreate',
       component: () =>
-        import(/* webpackChunkName: "TourCreate" */ "./views/TourCreate.vue"),
+        import(/* webpackChunkName: "TourCreate" */ './views/TourCreate.vue'),
       meta: {
         requiresAuth: true
       }
     },
     {
-      path: "/tours/:id/edit",
-      name: "tourEdit",
+      path: '/tours/:id/edit',
+      name: 'tourEdit',
       component: () =>
-        import(/* webpackChunkName: "TourEdit" */ "./views/TourEdit.vue"),
+        import(/* webpackChunkName: "TourEdit" */ './views/TourEdit.vue'),
       meta: {
         requiresAuth: true
       },
       props: true
     },
     {
-      path: "/tours/:id",
-      name: "tourDetail",
+      path: '/tours/:id',
+      name: 'tourDetail',
       component: () =>
-        import(/* webpackChunkName: "TourDetail" */ "./views/TourDetail.vue"),
+        import(/* webpackChunkName: "TourDetail" */ './views/TourDetail.vue'),
       props: true
     }
   ]
@@ -64,7 +64,7 @@ router.beforeEach((to, from, next) => {
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
 
   if (requiresAuth && !currentUser) {
-    next("/");
+    next('/');
   } else {
     next();
   }

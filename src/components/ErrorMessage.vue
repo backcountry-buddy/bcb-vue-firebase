@@ -10,6 +10,6 @@
 <script>
 // TODO: less than ideal. this should be replaced with error logging
 export default {
-  props: ["errorMessage"]
+  props: ['errorMessage']
 };
 </script>

@@ -56,7 +56,7 @@
 </template>
 
 <script>
-import { experienceLevels } from "@/config/user-profile";
+import { experienceLevels } from '@/config/user-profile';
 
 export default {
   props: { profile: Object },

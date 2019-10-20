@@ -63,22 +63,22 @@
 </template>
 
 <script>
-import { auth } from "@/config/firebase";
+import { auth } from '@/config/firebase';
 
 let unsubscribeFirebaseAuth;
 
 export default {
   data: function() {
     return {
-      email: "",
-      password: "",
+      email: '',
+      password: '',
       isSignUp: false,
-      authErrorMessage: "",
+      authErrorMessage: '',
       isAuthenticated: false,
       currentUser: {
-        email: "",
-        displayName: "",
-        uid: ""
+        email: '',
+        displayName: '',
+        uid: ''
       }
     };
   },
@@ -126,9 +126,9 @@ export default {
           this.resetLoginForm();
         })
         .catch(error => {
-          if (error.code.endsWith("user-not-found")) {
+          if (error.code.endsWith('user-not-found')) {
             this.authErrorMessage =
-              "A user with this email address does not exist.";
+              'A user with this email address does not exist.';
           } else {
             this.authErrorMessage = error.message;
           }
@@ -141,7 +141,7 @@ export default {
           this.resetLoginForm();
           this.resetAuthState();
           if (this.$router.currentRoute.meta.requiresAuth) {
-            this.$router.push("/");
+            this.$router.push('/');
           }
         })
         .catch(error => {
@@ -149,13 +149,13 @@ export default {
         });
     },
     resetLoginForm() {
-      this.email = "";
-      this.password = "";
-      this.authErrorMessage = "";
+      this.email = '';
+      this.password = '';
+      this.authErrorMessage = '';
     },
     resetAuthState() {
       this.isAuthenticated = false;
-      this.currentUser = { email: "", displayName: "" };
+      this.currentUser = { email: '', displayName: '' };
     }
   }
 };

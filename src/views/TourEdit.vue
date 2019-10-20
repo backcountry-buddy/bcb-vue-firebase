@@ -11,11 +11,11 @@
 </template>
 
 <script>
-import { firestore, db } from "@/config/firebase";
-import TourForm from "@/components/TourForm.vue";
+import { firestore, db } from '@/config/firebase';
+import TourForm from '@/components/TourForm.vue';
 
 export default {
-  props: ["id"],
+  props: ['id'],
 
   data() {
     return {
@@ -27,7 +27,7 @@ export default {
 
   firestore() {
     return {
-      tour: db.collection("tours").doc(this.id)
+      tour: db.collection('tours').doc(this.id)
     };
   },
 
@@ -35,17 +35,17 @@ export default {
     async saveTour(tourData) {
       tourData.modified = firestore.FieldValue.serverTimestamp();
       await db
-        .collection("tours")
+        .collection('tours')
         .doc(this.id)
         .set(tourData);
-      this.$router.push({ name: "home" });
+      this.$router.push({ name: 'home' });
     },
     async deleteTour(tourId) {
       await db
-        .collection("tours")
+        .collection('tours')
         .doc(tourId)
         .delete();
-      this.$router.push({ name: "home" });
+      this.$router.push({ name: 'home' });
     }
   }
 };

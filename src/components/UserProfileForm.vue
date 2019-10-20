@@ -121,25 +121,25 @@
 </template>
 
 <script>
-import { auth, db } from "@/config/firebase";
-import ErrorMessage from "./ErrorMessage.vue";
+import { auth, db } from '@/config/firebase';
+import ErrorMessage from './ErrorMessage.vue';
 
 export default {
   props: { profile: Object, currentUser: Object },
   data() {
     return {
-      displayName: "",
-      errorMessage: ""
+      displayName: '',
+      errorMessage: ''
     };
   },
   components: { ErrorMessage },
   methods: {
     toggleEditing() {
-      this.$emit("toggle-editing");
+      this.$emit('toggle-editing');
     },
     onFormSubmit(evt) {
       evt.preventDefault();
-      this.errorMessage = "";
+      this.errorMessage = '';
 
       const saveUserMetaInfo = auth.currentUser
         .updateProfile({ displayName: this.profile.displayName })
@@ -149,7 +149,7 @@ export default {
 
       const { uid } = this.currentUser;
       const saveUserProfile = db
-        .collection("users")
+        .collection('users')
         .doc(uid)
         .set(this.profile)
         .catch(error => {

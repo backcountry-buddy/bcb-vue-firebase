@@ -5,11 +5,11 @@
 </template>
 
 <script>
-import { db } from "@/config/firebase";
-import UserProfile from "@/components/UserProfile.vue";
+import { db } from '@/config/firebase';
+import UserProfile from '@/components/UserProfile.vue';
 
 export default {
-  props: ["uid"],
+  props: ['uid'],
   data() {
     return {
       profile: {}
@@ -17,7 +17,7 @@ export default {
   },
   firestore() {
     return {
-      profile: db.collection("users").doc(this.uid)
+      profile: db.collection('users').doc(this.uid)
     };
   },
   components: {

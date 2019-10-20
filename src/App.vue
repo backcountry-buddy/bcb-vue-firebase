@@ -18,10 +18,10 @@
 </template>
 
 <script>
-import LoginForm from "@/components/LoginForm.vue";
+import LoginForm from '@/components/LoginForm.vue';
 
 export default {
-  name: "app",
+  name: 'app',
   components: {
     LoginForm
   }

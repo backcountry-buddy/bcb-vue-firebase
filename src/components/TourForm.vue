@@ -204,26 +204,26 @@
 </template>
 
 <script>
-import { auth, db, firestore } from "@/config/firebase";
-import { DateTime } from "luxon";
-import LocationSelect from "@/components/LocationSelect.vue";
+import { auth, db, firestore } from '@/config/firebase';
+import { DateTime } from 'luxon';
+import LocationSelect from '@/components/LocationSelect.vue';
 
 export default {
-  props: ["title", "tour"],
+  props: ['title', 'tour'],
 
   data() {
     return {
       currentUser: {
-        uid: ""
+        uid: ''
       },
       isAddingLocation: false,
-      locationCoordinateString: "",
+      locationCoordinateString: '',
       location: {
-        country: "",
-        state: "",
-        region: "",
-        location: "",
-        coordinates: ""
+        country: '',
+        state: '',
+        region: '',
+        location: '',
+        coordinates: ''
       }
     };
   },
@@ -245,7 +245,7 @@ export default {
 
   watch: {
     locationCoordinateString(value) {
-      const [lat, lon] = value.split(",").map(c => parseFloat(c));
+      const [lat, lon] = value.split(',').map(c => parseFloat(c));
       if (lat && lon) {
         this.location.coordinates = new firestore.GeoPoint(lat, lon);
       }
@@ -267,14 +267,14 @@ export default {
       // required if locationRef has been resolved to Map
       if (!this.tour.locationRef.path) {
         this.tour.locationRef = db
-          .collection("locations")
+          .collection('locations')
           .doc(this.tour.locationRef.id);
       }
 
       const tourData = Object.assign({}, this.tour, this.location, {
-        creatorRef: db.collection("users").doc(this.currentUser.uid)
+        creatorRef: db.collection('users').doc(this.currentUser.uid)
       });
-      this.$emit("save", tourData);
+      this.$emit('save', tourData);
     },
     updatePlannedOn(evt) {
       // localized date input
@@ -287,9 +287,9 @@ export default {
     toggleIsAddingLocation() {
       this.isAddingLocation = !this.isAddingLocation;
       Object.keys(this.location).forEach(prop => {
-        this.location[prop] = "";
+        this.location[prop] = '';
       });
-      this.locationCoordinateString = "";
+      this.locationCoordinateString = '';
     },
     onLocationChange(selectedLocation) {
       Object.assign(this.location, selectedLocation);
@@ -298,11 +298,11 @@ export default {
       if (locationKeys.length === 4) {
         // query location reference
         const locationQuery = db
-          .collection("locations")
-          .where("country", "==", selectedLocation.country)
-          .where("state", "==", selectedLocation.state)
-          .where("region", "==", selectedLocation.region)
-          .where("name", "==", selectedLocation.location);
+          .collection('locations')
+          .where('country', '==', selectedLocation.country)
+          .where('state', '==', selectedLocation.state)
+          .where('region', '==', selectedLocation.region)
+          .where('name', '==', selectedLocation.location);
 
         locationQuery
           .get()
@@ -315,14 +315,14 @@ export default {
             }
           })
           .catch(error => {
-            console.error("Error fetching location: ", error);
+            console.error('Error fetching location: ', error);
           });
       }
     },
     async createNewLocation(location) {
       const locationData = Object.assign({}, location, {
         created: firestore.FieldValue.serverTimestamp(),
-        creatorRef: db.collection("users").doc(this.currentUser.uid),
+        creatorRef: db.collection('users').doc(this.currentUser.uid),
         isVerified: false
       });
       // sligthly confusing: location.name inherits tour.location
@@ -330,10 +330,10 @@ export default {
       delete locationData.location;
 
       return await db
-        .collection("locations")
+        .collection('locations')
         .add(locationData)
         .catch(error => {
-          console.error("Error adding a new location", error);
+          console.error('Error adding a new location', error);
         });
     }
   },
@@ -342,7 +342,7 @@ export default {
     localizedPlannedOn() {
       const { seconds } = this.tour.plannedOn;
       return DateTime.fromSeconds(seconds, {
-        zone: "utc"
+        zone: 'utc'
       }).toISODate();
     },
 

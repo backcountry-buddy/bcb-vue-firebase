@@ -32,10 +32,10 @@
 </template>
 
 <script>
-import { auth, db } from "@/config/firebase";
-import UserProfile from "@/components/UserProfile.vue";
-import UserProfileForm from "@/components/UserProfileForm.vue";
-import ErrorMessage from "@/components/ErrorMessage.vue";
+import { auth, db } from '@/config/firebase';
+import UserProfile from '@/components/UserProfile.vue';
+import UserProfileForm from '@/components/UserProfileForm.vue';
+import ErrorMessage from '@/components/ErrorMessage.vue';
 
 export default {
   data() {
@@ -44,21 +44,21 @@ export default {
       hasProfile: false,
       isEditing: false,
       currentUser: {
-        uid: "",
-        email: "",
-        displayName: ""
+        uid: '',
+        email: '',
+        displayName: ''
       },
       profile: {
-        displayName: "",
-        homeLocation: "",
-        travelDestinations: "",
-        experienceLocations: "",
-        experienceLevel: "",
-        aiare: "",
-        pack: "",
-        otherInfo: ""
+        displayName: '',
+        homeLocation: '',
+        travelDestinations: '',
+        experienceLocations: '',
+        experienceLevel: '',
+        aiare: '',
+        pack: '',
+        otherInfo: ''
       },
-      errorMessage: ""
+      errorMessage: ''
     };
   },
   components: {
@@ -80,8 +80,8 @@ export default {
       this.isEditing = !this.isEditing;
     },
     fetchUserProfile(uid) {
-      this.errorMessage = "";
-      db.collection("users")
+      this.errorMessage = '';
+      db.collection('users')
         .doc(uid)
         .get()
         .then(doc => {
@@ -100,7 +100,7 @@ export default {
     },
     createProfile() {
       const { uid } = this.currentUser;
-      db.collection("users")
+      db.collection('users')
         .doc(uid)
         .set(this.profile)
         .then(() => {

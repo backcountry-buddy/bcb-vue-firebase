@@ -3,10 +3,10 @@
 </template>
 
 <script>
-import TourList from "@/components/TourList.vue";
+import TourList from '@/components/TourList.vue';
 
 export default {
-  name: "home",
+  name: 'home',
   components: {
     TourList
   }

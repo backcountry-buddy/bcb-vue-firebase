@@ -62,22 +62,22 @@
 </template>
 
 <script>
-import { db } from "@/config/firebase";
+import { db } from '@/config/firebase';
 
-const countries = db.collection("countries").orderBy("name");
-const states = db.collection("states").orderBy("name");
-const regions = db.collection("regions").orderBy("name");
-const locations = db.collection("locations").orderBy("name");
+const countries = db.collection('countries').orderBy('name');
+const states = db.collection('states').orderBy('name');
+const regions = db.collection('regions').orderBy('name');
+const locations = db.collection('locations').orderBy('name');
 
 export default {
-  props: ["label", "preSelected"],
+  props: ['label', 'preSelected'],
 
   data: function() {
     return {
-      selectedCountry: "",
-      selectedState: "",
-      selectedRegion: "",
-      selectedLocation: "",
+      selectedCountry: '',
+      selectedState: '',
+      selectedRegion: '',
+      selectedLocation: '',
 
       countries: [],
       states: [],
@@ -88,70 +88,70 @@ export default {
 
   created() {
     if (this.preSelected) {
-      this.selectedCountry = this.preSelected.country || "";
-      this.selectedState = this.preSelected.state || "";
-      this.selectedRegion = this.preSelected.region || "";
-      this.selectedLocation = this.preSelected.location || "";
+      this.selectedCountry = this.preSelected.country || '';
+      this.selectedState = this.preSelected.state || '';
+      this.selectedRegion = this.preSelected.region || '';
+      this.selectedLocation = this.preSelected.location || '';
     }
   },
 
   watch: {
     selectedCountry(country) {
-      this.$bind("states", states.where("country", "==", country));
+      this.$bind('states', states.where('country', '==', country));
     },
     selectedState(state) {
       this.$bind(
-        "regions",
+        'regions',
         regions
-          .where("country", "==", this.selectedCountry)
-          .where("state", "==", state)
+          .where('country', '==', this.selectedCountry)
+          .where('state', '==', state)
       );
     },
     selectedRegion(region) {
       this.$bind(
-        "locations",
+        'locations',
         locations
-          .where("country", "==", this.selectedCountry)
-          .where("state", "==", this.selectedState)
-          .where("region", "==", region)
+          .where('country', '==', this.selectedCountry)
+          .where('state', '==', this.selectedState)
+          .where('region', '==', region)
       );
     }
   },
 
   methods: {
     selectLocation(locationType) {
-      if (locationType === "country") {
-        this.selectedState = "";
-        this.selectedRegion = "";
-        this.selectedLocation = "";
+      if (locationType === 'country') {
+        this.selectedState = '';
+        this.selectedRegion = '';
+        this.selectedLocation = '';
       }
-      if (locationType === "state") {
-        this.selectedRegion = "";
-        this.selectedLocation = "";
+      if (locationType === 'state') {
+        this.selectedRegion = '';
+        this.selectedLocation = '';
       }
-      if (locationType === "region") {
-        this.selectedLocation = "";
+      if (locationType === 'region') {
+        this.selectedLocation = '';
       }
       const params = {};
       [
-        "selectedCountry",
-        "selectedState",
-        "selectedRegion",
-        "selectedLocation"
+        'selectedCountry',
+        'selectedState',
+        'selectedRegion',
+        'selectedLocation'
       ].forEach(prop => {
         if (this.$data[prop]) {
           const paramName = prop.slice(8).toLowerCase();
           params[paramName] = this.$data[prop];
         }
       });
-      this.$emit("selectLocation", params);
+      this.$emit('selectLocation', params);
     },
     resetSelection() {
-      this.selectedCountry = "";
-      this.selectedState = "";
-      this.selectedRegion = "";
-      this.selectedLocation = "";
-      this.$emit("selectLocation", {});
+      this.selectedCountry = '';
+      this.selectedState = '';
+      this.selectedRegion = '';
+      this.selectedLocation = '';
+      this.$emit('selectLocation', {});
     }
   },
 

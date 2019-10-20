@@ -1,6 +1,6 @@
-import firebase from "firebase/app";
-import "firebase/firestore";
-import "firebase/auth";
+import firebase from 'firebase/app';
+import 'firebase/firestore';
+import 'firebase/auth';
 
 firebase.initializeApp({
   apiKey: process.env.VUE_APP_FIREBASE_API_KEY,

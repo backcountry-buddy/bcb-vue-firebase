@@ -49,8 +49,8 @@
 </template>
 
 <script>
-import { auth, db } from "@/config/firebase";
-import { DateTime } from "luxon";
+import { auth, db } from '@/config/firebase';
+import { DateTime } from 'luxon';
 
 export default {
   props: { tour: Object },
@@ -76,7 +76,7 @@ export default {
     },
     tourDate() {
       const d = DateTime.fromSeconds(this.tour.plannedOn.seconds, {
-        zone: "utc"
+        zone: 'utc'
       });
       return d.toLocaleString(DateTime.DATE_MED);
     },
@@ -85,9 +85,9 @@ export default {
     },
     nrBuddies() {
       return db
-        .collection("tours")
+        .collection('tours')
         .doc(this.tour.id)
-        .collection("buddies");
+        .collection('buddies');
     }
   },
 
@@ -95,7 +95,7 @@ export default {
     // FIXME: not fully undestanding why this reference is sometimes bound
     // automatically and sometimes it's not
     const creatorDoc = this.tour.creatorRef.id
-      ? db.collection("users").doc(this.tour.creatorRef.id)
+      ? db.collection('users').doc(this.tour.creatorRef.id)
       : db.doc(this.tour.creatorRef);
     return {
       creator: creatorDoc

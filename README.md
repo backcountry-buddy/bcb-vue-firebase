@@ -1,4 +1,4 @@
-https://github.com/backcountry-buddy/bcb-vue-firebase/workflows/Test/badge.svg
+![Test Status](https://github.com/backcountry-buddy/bcb-vue-firebase/workflows/Test/badge.svg)
 
 # mvp-vue-firebase
 

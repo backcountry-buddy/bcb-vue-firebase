@@ -10,7 +10,7 @@
       >
     </h2>
     <LocationSelect
-      class="border-t border-b p-2 my-4"
+      class="border-t border-b py-2 my-4"
       @selectLocation="applyFilter"
       label="Filter planned tours by location"
     />

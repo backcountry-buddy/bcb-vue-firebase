@@ -11,7 +11,7 @@
           >Find your next tour buddies!</span
         >
       </h1>
-      <LoginForm />
+      <LoginForm class="w-2/5 md:w-auto" />
     </div>
     <router-view />
   </div>

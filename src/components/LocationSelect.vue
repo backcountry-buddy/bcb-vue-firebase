@@ -12,7 +12,7 @@
       <select
         v-model="selectedCountry"
         @change="selectLocation('country')"
-        class="p-2 mb-2 md:mb-0 bg-gray-200 text-sm"
+        class="p-2 mb-2 md:mb-0 bg-gray-200 text-base"
         name="country"
       >
         <option value>Select a country</option>
@@ -24,7 +24,7 @@
         v-if="!!selectedCountry"
         v-model="selectedState"
         @change="selectLocation('state')"
-        class="p-2 mb-2 md:ml-2 md:mb-0 bg-gray-200 text-sm"
+        class="p-2 mb-2 md:ml-2 md:mb-0 bg-gray-200 text-base"
         name="state"
       >
         <option value>Select a state</option>
@@ -36,7 +36,7 @@
         v-if="!!selectedState"
         v-model="selectedRegion"
         @change="selectLocation('region')"
-        class="p-2 mb-2 md:ml-2 md:mb-0 bg-gray-200 text-sm"
+        class="p-2 mb-2 md:ml-2 md:mb-0 bg-gray-200 text-base"
         name="region"
       >
         <option value>Select a region</option>
@@ -49,7 +49,7 @@
         v-if="!!selectedRegion"
         v-model="selectedLocation"
         @change="selectLocation('location')"
-        class="p-2 mb-2 md:ml-2 md:mb-0 bg-gray-200 text-sm"
+        class="p-2 mb-2 md:ml-2 md:mb-0 bg-gray-200 text-base"
         name="location"
       >
         <option value>Select a location</option>

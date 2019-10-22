@@ -10,7 +10,7 @@
         >
           Cancel
         </button>
-        <button type="submit" class="form-button">Save Profile</button>
+        <button type="submit" class="form-button-green">Save Profile</button>
       </div>
     </h2>
 
@@ -19,7 +19,7 @@
       type="text"
       name="display-name"
       v-model="profile.displayName"
-      class="form-input-sm focus:shadow-outline mb-1"
+      class="form-input focus:shadow-outline mb-1"
       placeholder="Nickname, real name or initials."
     />
 
@@ -30,7 +30,7 @@
       type="text"
       name="home-location"
       v-model="profile.homeLocation"
-      class="form-input-sm focus:shadow-outline mb-1"
+      class="form-input focus:shadow-outline mb-1"
       placeholder="City or general area you live in"
     />
 
@@ -41,7 +41,7 @@
     <select
       name="experience-level"
       v-model="profile.experienceLevel"
-      class="form-input-sm focus:shadow-outline mb-1"
+      class="form-input focus:shadow-outline mb-1"
     >
       <option value="1">I - On-piste double black diamond</option>
       <option value="2">II - Off-piste trees and glades</option>
@@ -58,7 +58,7 @@
       v-model="profile.travelDestinations"
       rows="3"
       placeholder="List of cities or areas you're willing to travel to"
-      class="form-input-sm focus:shadow-outline mb-1 resize-none"
+      class="form-input focus:shadow-outline mb-1 resize-none"
     ></textarea>
 
     <label for="experience-locations" class="text-sm text-gray-600 italic mt-2"
@@ -69,7 +69,7 @@
       v-model="profile.experienceLocations"
       rows="3"
       placeholder="List of areas you're experienced with"
-      class="form-input-sm focus:shadow-outline mb-1 resize-none"
+      class="form-input focus:shadow-outline mb-1 resize-none"
     ></textarea>
 
     <label for="aiare" class="text-sm text-gray-600 italic mt-2"
@@ -80,7 +80,7 @@
       v-model="profile.aiare"
       rows="3"
       placeholder="List of trainings and courses your completed"
-      class="form-input-sm focus:shadow-outline mb-1 resize-none"
+      class="form-input focus:shadow-outline mb-1 resize-none"
     ></textarea>
 
     <label for="pack" class="text-sm text-gray-600 italic mt-2"
@@ -91,7 +91,7 @@
       v-model="profile.pack"
       rows="3"
       placeholder="Describe what's typically in your pack"
-      class="form-input-sm focus:shadow-outline mb-1 resize-none"
+      class="form-input focus:shadow-outline mb-1 resize-none"
     ></textarea>
 
     <label for="otherInfo" class="text-sm text-gray-600 italic mt-2"
@@ -102,7 +102,7 @@
       v-model="profile.otherInfo"
       rows="3"
       placeholder="Other interesting details about me"
-      class="form-input-sm focus:shadow-outline mb-1 resize-none"
+      class="form-input focus:shadow-outline mb-1 resize-none"
     ></textarea>
 
     <div class="text-right mt-4">
@@ -113,7 +113,7 @@
       >
         Cancel
       </button>
-      <button type="submit" class="form-button">Save Profile</button>
+      <button type="submit" class="form-button-green">Save Profile</button>
     </div>
 
     <ErrorMessage :errorMessage="errorMessage" />

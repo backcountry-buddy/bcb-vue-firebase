@@ -18,6 +18,10 @@
   @apply text-sm bg-gray-100 p-1 outline-none border;
 }
 
+.form-input {
+  @apply text-base bg-gray-100 p-1 outline-none border;
+}
+
 .form-button {
   @apply text-xs bg-gray-200 py-1 px-2 border shadow;
 }

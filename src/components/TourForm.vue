@@ -29,7 +29,7 @@
             type="text"
             id="title"
             v-model="tour.title"
-            class="form-input-sm focus:shadow-outline"
+            class="form-input focus:shadow-outline"
             placeholder="A short title for your tour"
           />
         </div>
@@ -42,7 +42,7 @@
             id="planned-on"
             :value="localizedPlannedOn"
             @input="updatePlannedOn"
-            class="form-input-sm focus:shadow-outline"
+            class="form-input focus:shadow-outline"
           />
         </div>
       </div>
@@ -59,7 +59,7 @@
                 type="text"
                 id="location-name"
                 v-model="location.location"
-                class="form-input-sm focus:shadow-outline mb-1 max-w-full"
+                class="form-input focus:shadow-outline mb-1 max-w-full"
                 placeholder="Mount Washington"
                 required
               />
@@ -72,7 +72,7 @@
                 type="text"
                 id="coordinates"
                 v-model="locationCoordinateString"
-                class="form-input-sm focus:shadow-outline mb-1 max-w-full"
+                class="form-input focus:shadow-outline mb-1 max-w-full"
                 placeholder="44.2705,71.30325"
                 required
               />
@@ -87,7 +87,7 @@
                 type="text"
                 id="country"
                 v-model="location.country"
-                class="form-input-sm focus:shadow-outline"
+                class="form-input focus:shadow-outline"
                 placeholder="United States"
                 required
               />
@@ -100,7 +100,7 @@
                 type="text"
                 id="state"
                 v-model="location.state"
-                class="form-input-sm focus:shadow-outline"
+                class="form-input focus:shadow-outline"
                 placeholder="New Hampshire"
                 required
               />
@@ -113,7 +113,7 @@
                 type="text"
                 id="region"
                 v-model="location.region"
-                class="form-input-sm focus:shadow-outline"
+                class="form-input focus:shadow-outline"
                 placeholder="White Mountains"
                 required
               />
@@ -162,7 +162,7 @@
         v-model="tour.description"
         rows="5"
         placeholder="Talk about the nature of the tour, how long it'll take, how hard it is, a link to a map, what you're looking for, etc."
-        class="form-input-sm focus:shadow-outline mb-1 resize-none"
+        class="form-input focus:shadow-outline mb-1 resize-none"
       ></textarea>
 
       <div class="mt-2 md:mt-4 mb-2 md:mb-0 flex justify-between">

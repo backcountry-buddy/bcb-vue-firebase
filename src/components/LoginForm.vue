@@ -20,7 +20,7 @@
         type="email"
         v-model="email"
         name="email"
-        class="form-input-xs focus:shadow-outline mb-1"
+        class="form-input focus:shadow-outline mb-1"
         placeholder="Your email"
         autocomplete="username"
         required
@@ -28,7 +28,7 @@
       <input
         type="password"
         v-model="password"
-        class="form-input-xs focus:shadow-outline mb-1"
+        class="form-input focus:shadow-outline mb-1"
         placeholder="A secure password"
         autocomplete="current-password"
         required

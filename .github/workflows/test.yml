@@ -4,11 +4,10 @@ on:
   pull_request:
     branches:
       - master
-
+ 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v1
       - name: Use Node.js 10.x
@@ -23,4 +22,3 @@ jobs:
         run: yarn run test:unit
         env:
           CI: true
-        

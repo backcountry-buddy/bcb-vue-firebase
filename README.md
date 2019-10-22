@@ -1,3 +1,5 @@
+https://github.com/backcountry-buddy/bcb-vue-firebase/workflows/Test/badge.svg
+
 # mvp-vue-firebase
 
 Building a MVP with Vue.js and Firebase/Firestore. See how far we can get until we run into constraints using this stack.

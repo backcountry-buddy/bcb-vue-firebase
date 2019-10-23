@@ -1,5 +1,5 @@
 <template>
-  <form @submit="onFormSubmit" class="flex flex-col mb-4">
+  <form @submit="onFormSubmit" class="flex flex-col">
     <h2 class="font-bold flex justify-between sticky top-0 bg-white py-2">
       Edit your public profile
       <div>

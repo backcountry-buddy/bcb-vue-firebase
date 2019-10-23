@@ -5,12 +5,12 @@
       <router-link
         v-if="isAuthenticated"
         to="/tours/plan"
-        class="bg-orange-200 py-1 px-2 shadow text-sm"
+        class="bg-orange-200 py-1 px-2 shadow text-sm font-semibold"
         >Plan a tour!</router-link
       >
     </h2>
     <LocationSelect
-      class="border-t border-b py-2 my-4"
+      class="border-t border-b pt-4 pb-2 my-4"
       @selectLocation="applyFilter"
       label="Filter planned tours by location"
     />

@@ -1,5 +1,8 @@
 <template>
-  <div v-if="isAuthenticated" class="flex flex-col flex-grow-0 items-end">
+  <div
+    v-if="isAuthenticated"
+    class="flex flex-col flex-grow-0 items-end w-2/5 md:w-auto mt-1"
+  >
     <span class="text-xs"
       >Welcome,
       <span class="whitespace-no-wrap"
@@ -14,7 +17,7 @@
       </button>
     </div>
   </div>
-  <div v-else class="flex-grow-0">
+  <div v-else class="flex-grow-0 w-2/5 h-20 md:w-auto">
     <form @submit="loginFormSubmit" class="flex flex-col">
       <input
         type="email"
@@ -23,9 +26,11 @@
         class="form-input focus:shadow-outline mb-1"
         placeholder="Your email"
         autocomplete="username"
+        @focus="showPasswordField"
         required
       />
       <input
+        v-if="isShowingPasswordField"
         type="password"
         v-model="password"
         class="form-input focus:shadow-outline mb-1"
@@ -37,7 +42,7 @@
         <button type="submit" class="form-button">Sign up</button>
         <button
           type="button"
-          class="link-xs px-2 focus:outline-none"
+          class="link-xs focus:outline-none"
           @click="toggleSignUp"
         >
           Log in?
@@ -49,7 +54,7 @@
         </button>
         <button
           type="button"
-          class="link-xs px-2 focus:outline-none"
+          class="link-xs focus:outline-none"
           @click="toggleSignUp"
         >
           No account?
@@ -75,6 +80,7 @@ export default {
       isSignUp: false,
       authErrorMessage: '',
       isAuthenticated: false,
+      isShowingPasswordField: false,
       currentUser: {
         email: '',
         displayName: '',
@@ -82,6 +88,7 @@ export default {
       }
     };
   },
+
   created() {
     unsubscribeFirebaseAuth = auth.onAuthStateChanged(user => {
       if (!user) {
@@ -94,9 +101,11 @@ export default {
       this.currentUser.uid = uid;
     });
   },
+
   beforeDestroy() {
     unsubscribeFirebaseAuth();
   },
+
   methods: {
     toggleSignUp() {
       this.isSignUp = !this.isSignUp;
@@ -156,6 +165,9 @@ export default {
     resetAuthState() {
       this.isAuthenticated = false;
       this.currentUser = { email: '', displayName: '' };
+    },
+    showPasswordField() {
+      this.isShowingPasswordField = true;
     }
   }
 };

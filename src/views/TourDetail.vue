@@ -1,5 +1,5 @@
 <template>
-  <div class="mt-4">
+  <div>
     <div class="mb-4 text-right">
       <router-link
         class="form-button"

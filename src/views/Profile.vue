@@ -1,12 +1,12 @@
 <template>
-  <div v-if="profileIsLoaded" class="mt-4">
+  <div v-if="profileIsLoaded" class="mt-2 mb-4">
     <UserProfileForm
       v-if="isEditing"
       v-on:toggle-editing="toggleEditing"
       :profile="profile"
       :currentUser="currentUser"
     />
-    <div v-else class="mt-4">
+    <div v-else class="mt-2 mb-4">
       <div v-if="hasProfile">
         <UserProfile :profile="profile" :currentUser="currentUser"
           ><router-link

@@ -6,6 +6,7 @@ import router from './router';
 import { auth } from './config/firebase';
 import * as Sentry from '@sentry/browser';
 import * as Integrations from '@sentry/integrations';
+import './registerServiceWorker';
 
 Vue.use(firestorePlugin);
 

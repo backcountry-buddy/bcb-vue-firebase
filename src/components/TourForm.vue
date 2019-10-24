@@ -42,6 +42,7 @@
             id="planned-on"
             :value="localizedPlannedOn"
             @input="updatePlannedOn"
+            placeholder="YYYY-MM-DD"
             class="form-input focus:shadow-outline"
           />
         </div>
@@ -277,8 +278,12 @@ export default {
       this.$emit('save', tourData);
     },
     updatePlannedOn(evt) {
+      const dateString = evt.target.value;
+      if (dateString.length < 10) {
+        return;
+      }
       // localized date input
-      const date = DateTime.fromISO(evt.target.value).toJSDate();
+      const date = DateTime.fromISO(dateString).toJSDate();
       this.tour.plannedOn = firestore.Timestamp.fromDate(date);
     },
     goBack() {

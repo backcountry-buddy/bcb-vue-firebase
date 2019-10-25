@@ -17,7 +17,7 @@
       </button>
     </div>
   </div>
-  <div v-else class="flex-grow-0 w-2/5 h-20 md:w-auto">
+  <div v-else class="flex-grow-0 w-2/5 md:w-auto">
     <form @submit="loginFormSubmit" class="flex flex-col">
       <input
         type="email"

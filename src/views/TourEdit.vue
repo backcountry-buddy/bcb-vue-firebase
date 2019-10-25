@@ -38,7 +38,7 @@ export default {
         .collection('tours')
         .doc(this.id)
         .set(tourData);
-      this.$router.push({ name: 'home' });
+      this.$router.go(-1);
     },
     async deleteTour(tourId) {
       await db

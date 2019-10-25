@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="mt-4">
     <div class="mb-4 text-right">
       <router-link
         class="form-button"
@@ -11,9 +11,7 @@
     <h2 class="py-2 sticky top-0 bg-white">
       <div class="flex justify-between">
         <span class="font-semibold text-lg">{{ tour.title }}</span>
-        <span class="text-xs font-light whitespace-no-wrap ml-4 pt-2">{{
-          tourDate
-        }}</span>
+        <span class="text-sm whitespace-no-wrap ml-4">{{ tourDate }}</span>
       </div>
       <div class="flex flex-col">
         <span class="font-light">{{ tour.location }}</span>
@@ -23,7 +21,9 @@
       </div>
     </h2>
 
-    <p class="mb-2 mt-2">{{ tour.description }}</p>
+    <p class="break-words mb-2 mt-2 whitespace-pre-wrap">
+      {{ tour.description }}
+    </p>
 
     <div
       class="flex justify-between items-start border-t border-b border-gray-200 p-2 mt-4"

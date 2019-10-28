@@ -6,6 +6,10 @@
   @apply text-blue-500 underline;
 }
 
+.link-sm {
+  @apply text-sm text-blue-400 underline;
+}
+
 .link-xs {
   @apply text-xs text-blue-400 underline;
 }

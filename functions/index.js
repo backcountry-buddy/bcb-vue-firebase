@@ -5,6 +5,18 @@ admin.initializeApp();
 
 const db = admin.firestore();
 
+function notifySiteOwner(msgOptions) {
+  const sgApiKey = functions.config().sendgrid.api_key;
+  sgMail.setApiKey(sgApiKey);
+  const siteOwnerEmail = functions.config().site_owner.email
+  const msg = {
+    to: siteOwnerEmail,
+    from: 'firebase-function@backcountrybuddy.com'
+  };
+  Object.assign(msg, msgOptions);
+  sgMail.send(msg);
+}
+
 // create parent docs, if they don't exist
 exports.createLocationParents = functions.firestore
   .document('locations/{locationId}')
@@ -51,6 +63,12 @@ exports.createLocationParents = functions.firestore
           console.error(error);
         });
     });
+
+    const subject = 'Backcountry Buddy new location';
+    const { country, state, region, name, coordinates } = location;
+    const text = `${country} > ${state} > ${region} > ${name} > ${coordinates}`;
+    notifySiteOwner({subject, text});
+
     return Promise.all(queries);
   });
 
@@ -83,16 +101,9 @@ exports.createUserProfile = functions.auth.user().onCreate(user => {
     displayName: `${email.split('@')[0]}`
   };
   
-  const sgApiKey = functions.config().sendgrid.api_key;
-  sgMail.setApiKey(sgApiKey);
-  const siteOwnerEmail = functions.config().site_owner.email
-  const msg = {
-    to: siteOwnerEmail,
-    from: 'firebase-function@backcountrybuddy.com',
-    subject: 'Backcountry Buddy user signed up',
-    text: `${email}, https://backcountrybuddy.org/users/${uid}`
-  };
-  sgMail.send(msg);
+  const subject = 'Backcountry Buddy user signed up';
+  const text = `${email}, https://backcountrybuddy.org/users/${uid}`;
+  notifySiteOwner({subject, text});
 
   return db
     .collection('users')

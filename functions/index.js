@@ -1,5 +1,6 @@
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
+const sgMail = require('@sendgrid/mail');
 admin.initializeApp();
 
 const db = admin.firestore();
@@ -81,6 +82,18 @@ exports.createUserProfile = functions.auth.user().onCreate(user => {
   const profile = {
     displayName: `${email.split('@')[0]}`
   };
+  
+  const sgApiKey = functions.config().sendgrid.api_key;
+  sgMail.setApiKey(sgApiKey);
+  const siteOwnerEmail = functions.config().site_owner.email
+  const msg = {
+    to: siteOwnerEmail,
+    from: 'firebase-function@backcountrybuddy.com',
+    subject: 'Backcountry Buddy user signed up',
+    text: `${email}, https://backcountrybuddy.org/users/${uid}`
+  };
+  sgMail.send(msg);
+
   return db
     .collection('users')
     .doc(uid)

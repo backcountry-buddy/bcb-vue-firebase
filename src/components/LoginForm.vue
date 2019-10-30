@@ -27,26 +27,33 @@
         </g>
       </svg>
     </button>
-    <button
-      v-else
-      type="button"
+    <div v-else class="mt-2 flex items-center">
+      <router-link to="/about" class="link-sm mr-2">About</router-link>
+      <button
+        type="button"
         class="link-sm focus:outline-none"
-      @click="toggleMenu"
-    >
-      Login
-    </button>
+        @click="toggleMenu"
+      >
+        Login
+      </button>
+    </div>
 
     <div v-if="isShowingMenu" class="login-form__menu-container">
       <ul
         v-if="isAuthenticated"
-        class="bg-gray-100 border border-gray-200 py-2 px-4 mt-2 shadow-lg"
+        class="bg-gray-100 border border-gray-200 mt-2 shadow-lg"
       >
-        <li class="py-2">
+        <li class="px-2 pt-2 pb-1">
           <router-link to="/profile" class="link-sm whitespace-no-wrap"
             >Your Profile</router-link
           >
         </li>
-        <li class="py-2">
+        <li class="px-2 pb-2 pt-1">
+          <router-link to="/about" class="link-sm whitespace-no-wrap"
+            >About</router-link
+          >
+        </li>
+        <li class="border-t px-2 pt-1 pb-2">
           <button
             type="button"
             class="link-sm focus:outline-none whitespace-no-wrap "

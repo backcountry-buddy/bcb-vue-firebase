@@ -66,7 +66,7 @@ exports.createLocationParents = functions.firestore
 
     const subject = 'Backcountry Buddy new location';
     const { country, state, region, name, coordinates } = location;
-    const text = `${country} > ${state} > ${region} > ${name} > ${coordinates}`;
+    const text = `${country} > ${state} > ${region} > ${name} > ${coordinates.longitude},${coordinates.latitude}`;
     notifySiteOwner({subject, text});
 
     return Promise.all(queries);

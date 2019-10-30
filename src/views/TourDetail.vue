@@ -105,11 +105,11 @@
     </div>
 
     <div class="mt-6">
-      <form class="mb-2" @submit="saveComment">
+      <form class="mb-2 flex flex-col" @submit="saveComment">
         <textarea
           v-model="newComment"
           name="comment-from"
-          class="form-input-sm w-full resize-none mb-1 border border-gray-200"
+          class="form-input-sm resize-none mb-1 border border-gray-200"
           rows="3"
           placeholder="Leave a comment..."
         ></textarea>

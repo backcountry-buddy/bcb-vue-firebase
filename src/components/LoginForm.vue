@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col items-end h-12 w-12 overflow-visible z-10">
+  <div class="flex flex-col items-end h-8 w-8 overflow-visible z-10">
     <button
       v-if="isAuthenticated"
       type="button"
@@ -8,8 +8,8 @@
     >
       <svg
         class="fill-current text-gray-400"
-        height="48px"
-        width="48px"
+        height="32px"
+        width="32px"
         xmlns="http://www.w3.org/2000/svg"
         xmlns:xlink="http://www.w3.org/1999/xlink"
         version="1.1"
@@ -30,7 +30,7 @@
     <button
       v-else
       type="button"
-      class="form-button mt-2 focus:outline-none flex-shrink-0"
+        class="link-sm focus:outline-none"
       @click="toggleMenu"
     >
       Login

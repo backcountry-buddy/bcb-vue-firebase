@@ -84,6 +84,23 @@
             required
           />
 
+          <p v-if="isSignUp" class="text-xs italic text-gray-500 pb-1">
+            By creating your account, you agree to our
+            <a
+              class="link"
+              href="https://www.termsfeed.com/privacy-policy/8e62d93c33a471ed969b5c3f82750433"
+              target="blank"
+              >Privacy Policy</a
+            >
+            and
+            <a
+              class="link"
+              href="https://www.termsfeed.com/terms-conditions/3677b904f161197291869a4590ec605d"
+              target="blank"
+              >Terms of Use</a
+            >.
+          </p>
+
           <button type="submit" class="form-button">
             <span v-if="isPasswordReset">Password Reset</span>
             <span v-else-if="isSignUp">Sign up</span>

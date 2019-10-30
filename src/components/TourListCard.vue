@@ -82,12 +82,6 @@ export default {
     },
     isCreator() {
       return this.currentUser.uid === this.creator.id;
-    },
-    nrBuddies() {
-      return db
-        .collection('tours')
-        .doc(this.tour.id)
-        .collection('buddies');
     }
   },
 

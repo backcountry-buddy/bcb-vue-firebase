@@ -28,9 +28,7 @@ import { db, auth } from '@/config/firebase';
 import LocationSelect from './LocationSelect.vue';
 import TourListCard from './TourListCard.vue';
 
-// TODO: verify this is timezone safe
 const plannedTours = db.collection('tours').where('plannedOn', '>', new Date());
-let unsubscribeFirebaseAuth;
 
 export default {
   data: function() {
@@ -41,13 +39,10 @@ export default {
   },
 
   created() {
-    unsubscribeFirebaseAuth = auth.onAuthStateChanged(user => {
-      this.isAuthenticated = !!user;
-    });
-  },
-
-  beforeDestroy() {
-    unsubscribeFirebaseAuth();
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+      this.isAuthenticated = true;
+    }
   },
 
   components: {

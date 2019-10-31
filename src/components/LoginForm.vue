@@ -150,6 +150,7 @@
 
 <script>
 import { auth } from '@/config/firebase';
+import { EventBus } from '@/event-bus.js';
 
 export default {
   data: function() {
@@ -175,6 +176,12 @@ export default {
       const { email, displayName, uid } = currentUser;
       this.currentUser = { uid, email, displayName };
     }
+
+    EventBus.$on('focus-login', this.focusLogin);
+  },
+
+  beforeDestroy() {
+    EventBus.$off('focus-login', this.focusLogin);
   },
 
   computed: {
@@ -201,6 +208,11 @@ export default {
     resetPassword() {
       this.passwordResetEmailIsSent = false;
       this.isPasswordReset = true;
+    },
+    focusLogin() {
+      window.scrollTo(0, 0);
+      this.isShowingMenu = true;
+      this.$nextTick(() => this.$el.querySelector('input[name=email').focus());
     },
     loginFormSubmit(evt) {
       evt.preventDefault();

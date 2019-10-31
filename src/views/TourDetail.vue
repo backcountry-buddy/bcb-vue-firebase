@@ -150,6 +150,7 @@
 import { auth, db, firestore } from '@/config/firebase';
 import { DateTime } from 'luxon';
 import TourComment from '@/components/TourComment.vue';
+import { EventBus } from '@/event-bus.js';
 
 export default {
   props: ['id'],
@@ -231,8 +232,7 @@ export default {
         .delete();
     },
     focusLogin() {
-      window.scrollTo(0, 0);
-      document.querySelector('input[name=email').focus();
+      EventBus.$emit('focus-login');
     },
     saveComment(evt) {
       evt.preventDefault();

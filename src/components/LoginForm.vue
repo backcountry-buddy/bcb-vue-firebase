@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col items-end h-8 w-8 overflow-visible z-10">
+  <div class="h-8 w-8 overflow-visible z-10 relative">
     <button
       v-if="isAuthenticated"
       type="button"
@@ -27,8 +27,8 @@
         </g>
       </svg>
     </button>
-    <div v-else class="mt-2 flex items-center">
-      <router-link to="/about" class="link-sm mr-2">About</router-link>
+    <div v-else class="mt-1 flex justify-end items-center">
+      <router-link to="/about" class="link-sm mr-1">About</router-link>
       <button
         type="button"
         class="link-sm focus:outline-none"
@@ -37,23 +37,22 @@
         Login
       </button>
     </div>
-
-    <div v-if="isShowingMenu" class="login-form__menu-container">
+    <div v-if="isShowingMenu" class="absolute right-0">
       <ul
         v-if="isAuthenticated"
-        class="bg-gray-100 border border-gray-200 mt-2 shadow-lg"
+        class="bg-gray-800 border border-gray-200 mt-2 px-2 shadow-lg"
       >
-        <li class="px-2 pt-2 pb-1">
+        <li class="pt-2 pb-1">
           <router-link to="/profile" class="link-sm whitespace-no-wrap"
             >Your Profile</router-link
           >
         </li>
-        <li class="px-2 pb-2 pt-1">
+        <li class="pb-2 pt-1">
           <router-link to="/about" class="link-sm whitespace-no-wrap"
             >About</router-link
           >
         </li>
-        <li class="border-t px-2 pt-1 pb-2">
+        <li class="border-t pt-1 pb-2">
           <button
             type="button"
             class="link-sm focus:outline-none whitespace-no-wrap "
@@ -63,10 +62,10 @@
           </button>
         </li>
       </ul>
-      <div v-else class="bg-gray-100 border border-gray-200 p-4 mt-2 shadow-lg">
+      <div v-else class="bg-gray-800 w-56 p-4 mt-2 shadow-lg">
         <div
           v-if="passwordResetEmailIsSent"
-          class="italic text-xs text-red-600 mb-2 border-b pb-2"
+          class="italic text-xs text-red-500 mb-2 border-b pb-2"
         >
           Please check your inbox, we just sent you an email with a link to
           reset your Password.
@@ -91,7 +90,7 @@
             required
           />
 
-          <p v-if="isSignUp" class="text-xs italic text-gray-500 pb-1">
+          <p v-if="isSignUp" class="text-xs italic text-gray-400 pb-1">
             By creating your account, you agree to our
             <a
               class="link"
@@ -121,13 +120,13 @@
 
         <div
           v-if="!isPasswordReset"
-          class="mt-4 border-t text-sm text-gray-700 pt-2"
+          class="mt-4 border-t text-sm text-gray-400 pt-2"
         >
           <span v-if="isSignUp">Have an account?</span>
           <span v-else>New to Backcountry Buddy?</span>
           <button
             type="button"
-            class="mt-2 border-gray-500 py-1 px-2 border focus:outline-none w-full bg-white"
+            class="mt-2 border-gray-500 py-1 px-2 border focus:outline-none w-full bg-white text-gray-600"
             @click="toggleSignUp"
           >
             <span v-if="isSignUp">Log in</span>
@@ -276,10 +275,3 @@ export default {
   }
 };
 </script>
-
-<style scoped>
-.login-form__menu-container {
-  /* required for Safari */
-  transform: translateZ(0);
-}
-</style>

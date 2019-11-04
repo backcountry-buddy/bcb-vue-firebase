@@ -1,5 +1,5 @@
 <template>
-  <div class="h-8 w-8 overflow-visible z-10 relative">
+  <div class="login-form h-8 w-8 overflow-visible z-10 relative">
     <button
       v-if="isAuthenticated"
       type="button"
@@ -7,7 +7,7 @@
       class="focus:outline-none flex-shrink-0"
     >
       <svg
-        class="fill-current text-gray-400"
+        class="user-avatar fill-current text-gray-400"
         height="32px"
         width="32px"
         xmlns="http://www.w3.org/2000/svg"

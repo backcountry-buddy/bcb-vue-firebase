@@ -1,6 +1,6 @@
 <template>
   <div id="app" class="font-sans px-2 md:p-4 lg:mx-auto lg:w-1/2">
-    <div class="flex justify-between items-start mt-2">
+    <header class="flex justify-between items-start mt-2">
       <h1 class="overflow-x-hidden mt-1">
         <router-link to="/">
           <div>
@@ -28,7 +28,7 @@
         </router-link>
       </h1>
       <LoginForm />
-    </div>
+    </header>
     <router-view />
   </div>
 </template>

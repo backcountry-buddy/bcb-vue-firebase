@@ -3,8 +3,10 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
+    "build:testConfig": "cypress-firebase createTestEnvFile",
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
+    "test:e2e": "yarn run build:testConfig && vue-cli-service test:e2e",
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
@@ -22,11 +24,13 @@
   "devDependencies": {
     "@fullhuman/postcss-purgecss": "^1.3.0",
     "@vue/cli-plugin-babel": "^4.0.4",
+    "@vue/cli-plugin-e2e-cypress": "^4.0.5",
     "@vue/cli-plugin-eslint": "^4.0.4",
     "@vue/cli-plugin-pwa": "^4.0.5",
     "@vue/cli-service": "^4.0.4",
     "@vue/eslint-config-prettier": "^5.0.0",
     "babel-eslint": "^10.0.3",
+    "cypress-firebase": "^0.4.1",
     "eslint": "^6.5.1",
     "eslint-plugin-prettier": "^3.1.1",
     "eslint-plugin-vue": "^5.2.3",

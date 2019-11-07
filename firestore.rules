@@ -44,6 +44,12 @@ service cloud.firestore {
     	allow get;
       allow create: if request.auth.uid != null;
       allow update, delete: if request.auth.uid == user;
+
+      match /private/{privateDoc} {
+      	allow get: if resource.data.uid == request.auth.uid;
+        allow create: if false;
+        allow update, delete: if false;
+      }
     }
     
   }

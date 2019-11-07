@@ -8,7 +8,7 @@ const db = admin.firestore();
 function notifySiteOwner(msgOptions) {
   const sgApiKey = functions.config().sendgrid.api_key;
   sgMail.setApiKey(sgApiKey);
-  const siteOwnerEmail = functions.config().site_owner.email
+  const siteOwnerEmail = functions.config().site_owner.email;
   const msg = {
     to: siteOwnerEmail,
     from: 'firebase-function@backcountrybuddy.com'
@@ -67,7 +67,7 @@ exports.createLocationParents = functions.firestore
     const subject = 'Backcountry Buddy new location';
     const { country, state, region, name, coordinates } = location;
     const text = `${country} > ${state} > ${region} > ${name} > ${coordinates.longitude},${coordinates.latitude}`;
-    notifySiteOwner({subject, text});
+    notifySiteOwner({ subject, text });
 
     return Promise.all(queries);
   });
@@ -95,18 +95,24 @@ exports.decrementBuddyCount = functions.firestore
   });
 
 // create user profile with a default displayName on user signup
-exports.createUserProfile = functions.auth.user().onCreate(user => {
+exports.createUserProfile = functions.auth.user().onCreate(async user => {
   const { uid, email } = user;
-  const profile = {
+  const publicProfile = {
     displayName: `${email.split('@')[0]}`
   };
-  
+  const privateProfile = { email, uid };
   const subject = 'Backcountry Buddy user signed up';
   const text = `${email}, https://backcountrybuddy.org/users/${uid}`;
-  notifySiteOwner({subject, text});
+  notifySiteOwner({ subject, text });
 
+  await db
+    .collection('users')
+    .doc(uid)
+    .set(publicProfile);
   return db
     .collection('users')
     .doc(uid)
-    .set(profile);
+    .collection('private')
+    .doc('profile')
+    .set(privateProfile);
 });

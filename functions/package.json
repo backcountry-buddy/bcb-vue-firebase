@@ -13,13 +13,12 @@
     "node": "8"
   },
   "dependencies": {
+    "@sendgrid/client": "^6.4.0",
     "@sendgrid/mail": "^6.4.0",
     "firebase-admin": "^8.6.1",
     "firebase-functions": "^3.3.0"
   },
   "devDependencies": {
-    "eslint": "^6.6.0",
-    "eslint-plugin-promise": "^4.0.1",
     "firebase-functions-test": "^0.1.6"
   },
   "private": true

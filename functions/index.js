@@ -1,26 +1,14 @@
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
-const sgMail = require('@sendgrid/mail');
+const notifications = require('./notifications');
 admin.initializeApp();
 
 const db = admin.firestore();
 
-function notifySiteOwner(msgOptions) {
-  const sgApiKey = functions.config().sendgrid.api_key;
-  sgMail.setApiKey(sgApiKey);
-  const siteOwnerEmail = functions.config().site_owner.email;
-  const msg = {
-    to: siteOwnerEmail,
-    from: 'firebase-function@backcountrybuddy.com'
-  };
-  Object.assign(msg, msgOptions);
-  sgMail.send(msg);
-}
-
 // create parent docs, if they don't exist
 exports.createLocationParents = functions.firestore
   .document('locations/{locationId}')
-  .onCreate((snap, context) => {
+  .onCreate(snap => {
     const location = snap.data();
     let parents = [
       {
@@ -67,7 +55,11 @@ exports.createLocationParents = functions.firestore
     const subject = 'Backcountry Buddy new location';
     const { country, state, region, name, coordinates } = location;
     const text = `${country} > ${state} > ${region} > ${name} > ${coordinates.longitude},${coordinates.latitude}`;
-    notifySiteOwner({ subject, text });
+    notifications.notifySiteOwner(
+      { subject, text },
+      functions.config().sendgrid.api_key,
+      functions.config().site_owner.email
+    );
 
     return Promise.all(queries);
   });
@@ -75,20 +67,34 @@ exports.createLocationParents = functions.firestore
 // Buddy counts
 exports.incrementBuddyCount = functions.firestore
   .document('tours/{tourId}/buddies/{buddyId}')
-  .onCreate((snap, context) => {
+  .onCreate(async (snap, context) => {
     const tourId = context.params.tourId;
     const nrBuddies = admin.firestore.FieldValue.increment(1);
-    return db
+    notifications.queueTourUpdate({
+      tourId,
+      isBuddyNotification: true,
+      db,
+      sendgrid: functions.config().sendgrid,
+      created: admin.firestore.FieldValue.serverTimestamp()
+    });
+    return await db
       .collection('tours')
       .doc(tourId)
       .update({ nrBuddies });
   });
 exports.decrementBuddyCount = functions.firestore
   .document('tours/{tourId}/buddies/{buddyId}')
-  .onDelete((snap, context) => {
+  .onDelete(async (snap, context) => {
     const tourId = context.params.tourId;
     const nrBuddies = admin.firestore.FieldValue.increment(-1);
-    return db
+    notifications.queueTourUpdate({
+      tourId,
+      isBuddyNotification: true,
+      db,
+      sendgrid: functions.config().sendgrid,
+      created: admin.firestore.FieldValue.serverTimestamp()
+    });
+    return await db
       .collection('tours')
       .doc(tourId)
       .update({ nrBuddies });
@@ -103,7 +109,11 @@ exports.createUserProfile = functions.auth.user().onCreate(async user => {
   const privateProfile = { email, uid };
   const subject = 'Backcountry Buddy user signed up';
   const text = `${email}, https://backcountrybuddy.org/users/${uid}`;
-  notifySiteOwner({ subject, text });
+  notifications.notifySiteOwner(
+    { subject, text },
+    functions.config().sendgrid.api_key,
+    functions.config().site_owner.email
+  );
 
   await db
     .collection('users')
@@ -116,3 +126,53 @@ exports.createUserProfile = functions.auth.user().onCreate(async user => {
     .doc('profile')
     .set(privateProfile);
 });
+
+// cron function, runs every day at 7pm
+exports.sendTourUpdates = functions.pubsub
+  .schedule('0 19 * * *')
+  .timeZone('America/New_York')
+  .onRun(async () => {
+    // query unsent notifications
+    const query = db.collection('notifications').where('isSent', '==', false);
+    const unsentNotifications = await query.get();
+
+    const sgApiKey = functions.config().sendgrid.api_key;
+
+    const sgRequests = [];
+
+    // FIXME: possibly more than one notification for the same tour created,
+    // due to async nature of firebase functions. should we de-duplicate here?
+    unsentNotifications.forEach(doc => {
+      const sendgridPayload = doc.get('sendgridPayload');
+      // send email
+      sgRequests.push(
+        notifications
+          .sendNotification(sendgridPayload, sgApiKey)
+          .then(([response, body]) => {
+            const { statusCode } = response;
+            const sendgridResponse = { statusCode };
+            if (body) {
+              sendgridResponse.body = body;
+            }
+            doc.ref.update({
+              isSent: true,
+              sendgridResponse,
+              modified: admin.firestore.FieldValue.serverTimestamp()
+            });
+          })
+          .catch(e => {
+            const { code, message, response } = e;
+            const sendgridResponse = { code, message };
+            if (response) {
+              sendgridResponse.response = response;
+            }
+            doc.ref.update({
+              isSent: false,
+              sendgridResponse,
+              modified: admin.firestore.FieldValue.serverTimestamp()
+            });
+          })
+      );
+    });
+    return Promise.all(sgRequests);
+  });

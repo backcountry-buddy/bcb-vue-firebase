@@ -112,9 +112,101 @@ async function createBuddyPersonalizations(options) {
   return personalizations;
 }
 
+async function createCommentPersonalizations(options) {
+  const { emailTplData, db, tourId, tourDoc } = options;
+
+  emailTplData.isCommentNotification = true;
+
+  const commentsColl = await db
+    .collection('tours')
+    .doc(tourId)
+    .collection('comments')
+    .get();
+
+  if (commentsColl.empty) {
+    return false;
+  }
+
+  const commentAuthors = [];
+
+  commentsColl.forEach(doc => {
+    commentAuthors.push(doc.get('authorRef').get());
+  });
+
+  const authorDocs = await Promise.all(commentAuthors);
+  const uniqueCommenters = Array.from(
+    new Set(authorDocs.map(d => d.get('displayName')))
+  );
+  const hasMultipleCommenters = uniqueCommenters.length > 1;
+  if (hasMultipleCommenters) {
+    uniqueCommenters.splice(uniqueCommenters.length - 1, 0, 'and');
+  }
+  const commenters = uniqueCommenters.join(', ').replace(', and,', ' and');
+
+  // tour lead personalization
+  const creatorDoc = await tourDoc.get('creatorRef').get();
+  const creatorProfileDoc = await tourDoc
+    .get('creatorRef')
+    .collection('private')
+    .doc('profile')
+    .get();
+  const personalizations = [
+    {
+      to: [
+        {
+          name: creatorDoc.get('displayName'),
+          email: creatorProfileDoc.get('email')
+        }
+      ],
+      dynamic_template_data: {
+        displayName: creatorDoc.get('displayName'),
+        commenters,
+        hasMultipleCommenters,
+        ...emailTplData
+      }
+    }
+  ];
+
+  // add buddy notifications
+  const buddiesColl = await db
+    .collection('tours')
+    .doc(tourId)
+    .collection('buddies')
+    .get();
+
+  if (!buddiesColl.empty) {
+    buddiesColl.forEach(buddy => {
+      const personalization = {
+        to: [
+          {
+            email: buddy.get('email'),
+            name: buddy.get('displayName')
+          }
+        ],
+        dynamic_template_data: {
+          displayName: buddy.get('displayName'),
+          commenters,
+          hasMultipleCommenters,
+          ...emailTplData
+        }
+      };
+      personalizations.push(personalization);
+    });
+  }
+
+  return personalizations;
+}
+
 async function queueTourUpdate(options) {
-  // isCommentNotification, isInfoNotification
-  const { tourId, isBuddyNotification, db, sendgrid, created } = options;
+  // TODO: isInfoNotification
+  const {
+    tourId,
+    isBuddyNotification,
+    isCommentNotification,
+    db,
+    sendgrid,
+    created
+  } = options;
 
   const emailTplData = {
     tourUrl: `https://backcountrybuddy.org/tours/${tourId}`
@@ -138,6 +230,19 @@ async function queueTourUpdate(options) {
       tourDoc
     });
     personalizations = [...personalizations, ...buddyPersonalizations];
+  }
+
+  if (isCommentNotification) {
+    const commentPersonalizations = await createCommentPersonalizations({
+      emailTplData,
+      db,
+      tourId,
+      tourDoc
+    });
+    if (!commentPersonalizations) {
+      return;
+    }
+    personalizations = [...personalizations, ...commentPersonalizations];
   }
 
   const sendgridPayload = {
@@ -165,31 +270,33 @@ async function queueTourUpdate(options) {
     .where('type', '==', 'tour-update')
     .where('relatedResourceId', '==', tourId)
     .where('isSent', '==', false)
+    .orderBy('created', 'desc')
     .limit(1)
     .get();
 
   if (existingNotficationQuery.empty) {
-    db.collection('notifications').add(notification);
-  } else {
-    const existingNotification = existingNotficationQuery.docs[0].data();
-    const {
-      sendgridPayload: { personalizations: existingPersonalizations }
-    } = existingNotification;
-    const {
-      sendgridPayload: { personalizations }
-    } = notification;
-
-    const updatedPersonalizations = syncPersonalizations(
-      personalizations,
-      existingPersonalizations
-    );
-
-    const docId = existingNotficationQuery.docs[0].id;
-    notification.sendgridPayload.personalizations = updatedPersonalizations;
-    db.collection('notifications')
-      .doc(docId)
-      .set(notification);
+    return await db.collection('notifications').add(notification);
   }
+
+  const existingNotification = existingNotficationQuery.docs[0].data();
+  const {
+    sendgridPayload: { personalizations: existingPersonalizations }
+  } = existingNotification;
+  const {
+    sendgridPayload: { personalizations: newPersonalizations }
+  } = notification;
+
+  const syncedPersonalizations = syncPersonalizations(
+    newPersonalizations,
+    existingPersonalizations
+  );
+
+  const docId = existingNotficationQuery.docs[0].id;
+  notification.sendgridPayload.personalizations = syncedPersonalizations;
+  return await db
+    .collection('notifications')
+    .doc(docId)
+    .set(notification);
 }
 
 function sendNotification(payload, sgApiKey) {

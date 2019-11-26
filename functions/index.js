@@ -70,7 +70,7 @@ exports.incrementBuddyCount = functions.firestore
   .onCreate(async (snap, context) => {
     const tourId = context.params.tourId;
     const nrBuddies = admin.firestore.FieldValue.increment(1);
-    notifications.queueTourUpdate({
+    await notifications.queueTourUpdate({
       tourId,
       isBuddyNotification: true,
       db,
@@ -87,7 +87,7 @@ exports.decrementBuddyCount = functions.firestore
   .onDelete(async (snap, context) => {
     const tourId = context.params.tourId;
     const nrBuddies = admin.firestore.FieldValue.increment(-1);
-    notifications.queueTourUpdate({
+    await notifications.queueTourUpdate({
       tourId,
       isBuddyNotification: true,
       db,
@@ -98,6 +98,19 @@ exports.decrementBuddyCount = functions.firestore
       .collection('tours')
       .doc(tourId)
       .update({ nrBuddies });
+  });
+
+exports.createTourCommentNotification = functions.firestore
+  .document('tours/{tourId}/comments/{commentId}')
+  .onCreate(async (snapshot, context) => {
+    const tourId = context.params.tourId;
+    return await notifications.queueTourUpdate({
+      tourId,
+      isCommentNotification: true,
+      db,
+      sendgrid: functions.config().sendgrid,
+      created: admin.firestore.FieldValue.serverTimestamp()
+    });
   });
 
 // create user profile with a default displayName on user signup

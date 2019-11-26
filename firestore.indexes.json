@@ -90,6 +90,23 @@
         "fieldPath": "name",
         "order": "ASCENDING"
       }]
+    },
+    {
+      "collectionGroup": "notifications",
+      "queryScope": "COLLECTION",
+      "fields": [{
+        "fieldPath": "isSent",
+        "order": "ASCENDING"
+      }, {
+        "fieldPath": "relatedResourceId",
+        "order": "ASCENDING"
+      }, {
+        "fieldPath": "type",
+        "order": "ASCENDING"
+      }, {
+        "fieldPath": "created",
+        "order": "DESCENDING"
+      }]
     }
   ],
   "fieldOverrides": []

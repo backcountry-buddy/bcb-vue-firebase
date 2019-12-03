@@ -113,6 +113,46 @@ exports.createTourCommentNotification = functions.firestore
     });
   });
 
+exports.createTourInfoNotification = functions.firestore
+  .document('tours/{tourId}')
+  .onUpdate(async (change, context) => {
+    // exit if tour was deleted
+    // TODO: handle tour deletion
+    if (!change.after.exists) {
+      return null;
+    }
+
+    const propsHaveChanged = [
+      'description',
+      'location',
+      'plannedOn',
+      'title'
+    ].reduce((acc, propName) => {
+      let propHasChanged;
+      if (propName === 'plannedOn') {
+        propHasChanged =
+          change.before.get(propName).seconds !==
+          change.after.get(propName).seconds;
+      } else {
+        propHasChanged =
+          change.before.get(propName) !== change.after.get(propName);
+      }
+      return propHasChanged || acc;
+    }, false);
+
+    if (propsHaveChanged) {
+      const tourId = context.params.tourId;
+      return await notifications.queueTourUpdate({
+        tourId,
+        isInfoNotification: true,
+        db,
+        sendgrid: functions.config().sendgrid,
+        created: admin.firestore.FieldValue.serverTimestamp()
+      });
+    }
+    return null;
+  });
+
 // create user profile with a default displayName on user signup
 exports.createUserProfile = functions.auth.user().onCreate(async user => {
   const { uid, email } = user;
@@ -145,22 +185,31 @@ exports.sendTourUpdates = functions.pubsub
   .schedule('0 19 * * *')
   .timeZone('America/New_York')
   .onRun(async () => {
-    // query unsent notifications
-    const query = db.collection('notifications').where('isSent', '==', false);
-    const unsentNotifications = await query.get();
+    const unsentNotifications = await db
+      .collection('notifications')
+      .where('isSent', '==', false)
+      .where('type', '==', 'tour-update')
+      .get();
 
     const sgApiKey = functions.config().sendgrid.api_key;
+    const sendgrid = functions.config().sendgrid;
+    const sgPayloadPromises = [];
+
+    unsentNotifications.forEach(doc => {
+      sgPayloadPromises.push(
+        notifications.createSgPayload({ doc, db, sendgrid })
+      );
+    });
+
+    const sgPayloads = await Promise.all(sgPayloadPromises);
 
     const sgRequests = [];
-
-    // FIXME: possibly more than one notification for the same tour created,
-    // due to async nature of firebase functions. should we de-duplicate here?
-    unsentNotifications.forEach(doc => {
-      const sendgridPayload = doc.get('sendgridPayload');
-      // send email
+    sgPayloads.forEach(options => {
+      if (!options) return;
+      const { doc, payload } = options;
       sgRequests.push(
         notifications
-          .sendNotification(sendgridPayload, sgApiKey)
+          .sendNotification(payload, sgApiKey)
           .then(([response, body]) => {
             const { statusCode } = response;
             const sendgridResponse = { statusCode };
@@ -170,10 +219,12 @@ exports.sendTourUpdates = functions.pubsub
             doc.ref.update({
               isSent: true,
               sendgridResponse,
+              sendgridPayload: payload,
               modified: admin.firestore.FieldValue.serverTimestamp()
             });
           })
           .catch(e => {
+            if (!doc) return;
             const { code, message, response } = e;
             const sendgridResponse = { code, message };
             if (response) {
@@ -181,11 +232,14 @@ exports.sendTourUpdates = functions.pubsub
             }
             doc.ref.update({
               isSent: false,
+              hasError: true,
               sendgridResponse,
+              sendgridPayload: payload,
               modified: admin.firestore.FieldValue.serverTimestamp()
             });
           })
       );
     });
+
     return Promise.all(sgRequests);
   });

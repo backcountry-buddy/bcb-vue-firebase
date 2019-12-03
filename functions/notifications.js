@@ -11,238 +11,190 @@ function notifySiteOwner(msgOptions, sgApiKey, siteOwnerEmail) {
   sgMail.send(msg);
 }
 
-// update existing personalization with new personalization
-function syncPersonalizations(n, e) {
-  // we have only 1 recipient per personalization
-  const existingEmails = e.map(p => p.to[0].email);
-  const emails = n.map(p => p.to[0].email);
-
-  // sync existing personalizations with new ones
-  let i = 0;
-  while (i < e.length) {
-    // update existing personalization
-    const existingEmail = e[i].to[0].email;
-    // remove existing if not in new
-    if (emails.includes(existingEmail)) {
-      // update existing with new
-      const personalization = n.find(p => p.to[0].email === existingEmail);
-      Object.assign(
-        e[i].dynamic_template_data,
-        personalization.dynamic_template_data
-      );
-    } else {
-      // remove existing
-      e.splice(i, 1);
-    }
-    i++;
-  }
-
-  // add any new personalizations
-  const addedPersonalizations = n.filter(
-    p => !existingEmails.includes(p.to[0].email)
-  );
-  return [...e, ...addedPersonalizations];
+function getBuddiesString(buddies, recipientName) {
+  return buddies.filter(buddyName => buddyName !== recipientName).join(', ');
 }
 
-async function createBuddyPersonalizations(options) {
-  const { emailTplData, db, tourId, tourDoc } = options;
-
-  emailTplData.isBuddyNotification = true;
-
-  const buddiesColl = await db
-    .collection('tours')
-    .doc(tourId)
-    .collection('buddies')
-    .get();
-
-  emailTplData.hasBuddies = !buddiesColl.empty;
-
-  const allBuddyNames = [];
-  buddiesColl.forEach(buddy => allBuddyNames.push(buddy.get('displayName')));
-
-  // start with tour lead
-  const creatorDoc = await tourDoc.get('creatorRef').get();
-  const creatorProfileDoc = await tourDoc
-    .get('creatorRef')
-    .collection('private')
-    .doc('profile')
-    .get();
-  allBuddyNames.push(creatorDoc.get('displayName'));
-  const personalizations = [
-    {
-      to: [
-        {
-          name: creatorDoc.get('displayName'),
-          email: creatorProfileDoc.get('email')
-        }
-      ],
-      dynamic_template_data: {
-        displayName: creatorDoc.get('displayName'),
-        buddies: allBuddyNames
-          .filter(n => n !== creatorDoc.get('displayName'))
-          .join(', '),
-        ...emailTplData
-      }
-    }
-  ];
-
-  // add tour buddies
-  if (emailTplData.hasBuddies) {
-    // personalization
-    buddiesColl.forEach(buddy => {
-      const personalization = {
-        to: [
-          {
-            email: buddy.get('email'),
-            name: buddy.get('displayName')
-          }
-        ],
-        dynamic_template_data: {
-          displayName: buddy.get('displayName'),
-          buddies: allBuddyNames
-            .filter(n => n !== buddy.get('displayName'))
-            .join(', '),
-          ...emailTplData
-        }
-      };
-      personalizations.push(personalization);
-    });
-  }
-
-  return personalizations;
-}
-
-async function createCommentPersonalizations(options) {
-  const { emailTplData, db, tourId, tourDoc } = options;
-
-  emailTplData.isCommentNotification = true;
-
-  const commentsColl = await db
-    .collection('tours')
-    .doc(tourId)
-    .collection('comments')
-    .get();
-
-  if (commentsColl.empty) {
-    return false;
-  }
-
-  const commentAuthors = [];
-
-  commentsColl.forEach(doc => {
-    commentAuthors.push(doc.get('authorRef').get());
-  });
-
-  const authorDocs = await Promise.all(commentAuthors);
-  const uniqueCommenters = Array.from(
-    new Set(authorDocs.map(d => d.get('displayName')))
-  );
+function getCommentersString(commentAuthorNames) {
+  const uniqueCommenters = Array.from(new Set(commentAuthorNames));
   const hasMultipleCommenters = uniqueCommenters.length > 1;
   if (hasMultipleCommenters) {
     uniqueCommenters.splice(uniqueCommenters.length - 1, 0, 'and');
   }
-  const commenters = uniqueCommenters.join(', ').replace(', and,', ' and');
+  const commenterString = uniqueCommenters.join(', ').replace(', and,', ' and');
+  return { commenterString, hasMultipleCommenters };
+}
 
-  // tour lead personalization
-  const creatorDoc = await tourDoc.get('creatorRef').get();
-  const creatorProfileDoc = await tourDoc
-    .get('creatorRef')
-    .collection('private')
-    .doc('profile')
-    .get();
-  const personalizations = [
-    {
-      to: [
-        {
-          name: creatorDoc.get('displayName'),
-          email: creatorProfileDoc.get('email')
-        }
-      ],
-      dynamic_template_data: {
-        displayName: creatorDoc.get('displayName'),
-        commenters,
-        hasMultipleCommenters,
-        ...emailTplData
-      }
+function createPersonalization(
+  name,
+  email,
+  dynamicTemplateData,
+  buddies,
+  commenters
+) {
+  if (dynamicTemplateData.hasBuddies) {
+    dynamicTemplateData.buddies = getBuddiesString(buddies, name);
+  }
+  if (dynamicTemplateData.hasComments) {
+    const { commenterString, hasMultipleCommenters } = getCommentersString(
+      commenters
+    );
+    dynamicTemplateData.commenters = commenterString;
+    dynamicTemplateData.hasMultipleCommenters = hasMultipleCommenters;
+  }
+  return {
+    to: [{ name, email }],
+    dynamic_template_data: {
+      displayName: name,
+      ...dynamicTemplateData
     }
-  ];
+  };
+}
 
-  // add buddy notifications
+async function createSgPayload(options) {
+  const { doc, db, sendgrid } = options;
+  const notification = doc.data();
+
+  const { relatedResourceId: tourId, dynamicTemplateData } = notification;
+  const { isBuddyNotification, isCommentNotification } = dynamicTemplateData;
+
+  const tourDoc = await db
+    .collection('tours')
+    .doc(tourId)
+    .get();
+
+  // Load all buddies
   const buddiesColl = await db
     .collection('tours')
     .doc(tourId)
     .collection('buddies')
     .get();
+  // eslint-disable-next-line require-atomic-updates
+  dynamicTemplateData.hasBuddies = !buddiesColl.empty;
 
+  let creatorDoc = null;
+  let allBuddyNames = [];
+  if (isBuddyNotification) {
+    // compose buddies list
+    buddiesColl.forEach(buddy => allBuddyNames.push(buddy.get('displayName')));
+    creatorDoc = await tourDoc.get('creatorRef').get();
+    allBuddyNames.push(creatorDoc.get('displayName'));
+  }
+
+  let commenterNames;
+  if (isCommentNotification) {
+    const commentsColl = await db
+      .collection('tours')
+      .doc(tourId)
+      .collection('comments')
+      .get();
+    // eslint-disable-next-line require-atomic-updates
+    dynamicTemplateData.hasComments = !commentsColl.empty;
+
+    const commentAuthors = [];
+    commentsColl.forEach(doc => {
+      commentAuthors.push(doc.get('authorRef').get());
+    });
+    const authorDocs = await Promise.all(commentAuthors);
+    commenterNames = authorDocs.map(d => d.get('displayName'));
+  }
+
+  const personalizations = [];
+
+  // tour lead does not receive info notification
+  if (isBuddyNotification || isCommentNotification) {
+    if (!creatorDoc) {
+      creatorDoc = await tourDoc.get('creatorRef').get();
+    }
+
+    const creatorProfileDoc = await tourDoc
+      .get('creatorRef')
+      .collection('private')
+      .doc('profile')
+      .get();
+
+    personalizations.push(
+      createPersonalization(
+        creatorDoc.get('displayName'),
+        creatorProfileDoc.get('email'),
+        dynamicTemplateData,
+        allBuddyNames,
+        commenterNames
+      )
+    );
+  }
+
+  // buddy notifications
   if (!buddiesColl.empty) {
     buddiesColl.forEach(buddy => {
-      const personalization = {
-        to: [
-          {
-            email: buddy.get('email'),
-            name: buddy.get('displayName')
-          }
-        ],
-        dynamic_template_data: {
-          displayName: buddy.get('displayName'),
-          commenters,
-          hasMultipleCommenters,
-          ...emailTplData
-        }
-      };
-      personalizations.push(personalization);
+      personalizations.push(
+        createPersonalization(
+          buddy.get('displayName'),
+          buddy.get('email'),
+          dynamicTemplateData,
+          allBuddyNames,
+          commenterNames
+        )
+      );
     });
   }
 
-  return personalizations;
+  // delete notification if there's nothing to send
+  if (!personalizations.length) {
+    return doc.ref.delete();
+  }
+
+  return {
+    doc,
+    payload: {
+      from: {
+        email: sendgrid.from_email,
+        name: sendgrid.from_name
+      },
+      template_id: sendgrid.templates.tour_update,
+      asm: {
+        group_id: parseInt(sendgrid.unsubscribe_groups.tour_update, 10) || null
+      },
+      personalizations
+    }
+  };
 }
 
 async function queueTourUpdate(options) {
-  // TODO: isInfoNotification
   const {
     tourId,
     isBuddyNotification,
     isCommentNotification,
+    isInfoNotification,
     db,
     sendgrid,
     created
   } = options;
 
-  const emailTplData = {
-    tourUrl: `https://backcountrybuddy.org/tours/${tourId}`
-  };
   const tourDoc = await db
     .collection('tours')
     .doc(tourId)
     .get();
+
   if (!tourDoc.exists) {
     return;
   }
-  emailTplData.tourTitle = tourDoc.get('title');
 
-  let personalizations = [];
+  const dynamicTemplateData = {
+    tourUrl: `https://backcountrybuddy.org/tours/${tourId}`,
+    tourTitle: tourDoc.get('title')
+  };
 
   if (isBuddyNotification) {
-    const buddyPersonalizations = await createBuddyPersonalizations({
-      emailTplData,
-      db,
-      tourId,
-      tourDoc
-    });
-    personalizations = [...personalizations, ...buddyPersonalizations];
+    dynamicTemplateData.isBuddyNotification = true;
   }
 
   if (isCommentNotification) {
-    const commentPersonalizations = await createCommentPersonalizations({
-      emailTplData,
-      db,
-      tourId,
-      tourDoc
-    });
-    if (!commentPersonalizations) {
-      return;
-    }
-    personalizations = [...personalizations, ...commentPersonalizations];
+    dynamicTemplateData.isCommentNotification = true;
+  }
+
+  if (isInfoNotification) {
+    dynamicTemplateData.isInfoNotification = true;
   }
 
   const sendgridPayload = {
@@ -253,8 +205,7 @@ async function queueTourUpdate(options) {
     template_id: sendgrid.templates.tour_update,
     asm: {
       group_id: parseInt(sendgrid.unsubscribe_groups.tour_update, 10) || null
-    },
-    personalizations
+    }
   };
 
   const notification = {
@@ -262,7 +213,8 @@ async function queueTourUpdate(options) {
     relatedResourceId: tourId,
     isSent: false,
     sendgridPayload,
-    created
+    created,
+    dynamicTemplateData
   };
 
   const existingNotficationQuery = await db
@@ -278,25 +230,16 @@ async function queueTourUpdate(options) {
     return await db.collection('notifications').add(notification);
   }
 
-  const existingNotification = existingNotficationQuery.docs[0].data();
-  const {
-    sendgridPayload: { personalizations: existingPersonalizations }
-  } = existingNotification;
-  const {
-    sendgridPayload: { personalizations: newPersonalizations }
-  } = notification;
-
-  const syncedPersonalizations = syncPersonalizations(
-    newPersonalizations,
-    existingPersonalizations
+  // merge dynamic template data
+  const existingNotificationDoc = existingNotficationQuery.docs[0];
+  const existingDynamicTemplateData = existingNotificationDoc.get(
+    'dynamicTemplateData'
   );
-
-  const docId = existingNotficationQuery.docs[0].id;
-  notification.sendgridPayload.personalizations = syncedPersonalizations;
-  return await db
-    .collection('notifications')
-    .doc(docId)
-    .set(notification);
+  notification.dynamicTemplateData = {
+    ...existingDynamicTemplateData,
+    ...dynamicTemplateData
+  };
+  return await existingNotificationDoc.ref.update(notification);
 }
 
 function sendNotification(payload, sgApiKey) {
@@ -312,5 +255,6 @@ function sendNotification(payload, sgApiKey) {
 module.exports = {
   queueTourUpdate,
   notifySiteOwner,
-  sendNotification
+  sendNotification,
+  createSgPayload
 };

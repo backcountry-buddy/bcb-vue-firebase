@@ -19,6 +19,7 @@
     "firebase-functions": "^3.3.0"
   },
   "devDependencies": {
+    "eslint": "^6.7.2",
     "firebase-functions-test": "^0.1.6"
   },
   "private": true

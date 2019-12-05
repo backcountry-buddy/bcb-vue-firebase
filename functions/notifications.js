@@ -15,8 +15,10 @@ function getBuddiesString(buddies, recipientName) {
   return buddies.filter(buddyName => buddyName !== recipientName).join(', ');
 }
 
-function getCommentersString(commentAuthorNames) {
-  const uniqueCommenters = Array.from(new Set(commentAuthorNames));
+function getCommentersString(commentAuthorNames, recipientName) {
+  const uniqueCommenters = Array.from(new Set(commentAuthorNames)).filter(
+    commenterName => commenterName !== recipientName
+  );
   const hasMultipleCommenters = uniqueCommenters.length > 1;
   if (hasMultipleCommenters) {
     uniqueCommenters.splice(uniqueCommenters.length - 1, 0, 'and');
@@ -37,7 +39,8 @@ function createPersonalization(
   }
   if (dynamicTemplateData.hasComments) {
     const { commenterString, hasMultipleCommenters } = getCommentersString(
-      commenters
+      commenters,
+      name
     );
     dynamicTemplateData.commenters = commenterString;
     dynamicTemplateData.hasMultipleCommenters = hasMultipleCommenters;
@@ -51,13 +54,93 @@ function createPersonalization(
   };
 }
 
+async function createDeleteSgPayload(options) {
+  const { doc, db, sendgrid } = options;
+  const notification = doc.data();
+
+  const {
+    relatedResourceId: tourId,
+    dynamicTemplateData: { tourTitle }
+  } = notification;
+
+  const dynamicTemplateData = {
+    tourTitle,
+    isDeleteNotification: true
+  };
+
+  const documentsToDelete = [];
+
+  const commentsColl = await db
+    .collection('tours')
+    .doc(tourId)
+    .collection('comments')
+    .get();
+
+  if (!commentsColl.empty) {
+    commentsColl.forEach(commentDoc => {
+      documentsToDelete.push(commentDoc.ref.delete());
+    });
+  }
+
+  const buddiesColl = await db
+    .collection('tours')
+    .doc(tourId)
+    .collection('buddies')
+    .get();
+
+  const personalizations = [];
+
+  if (!buddiesColl.empty) {
+    buddiesColl.forEach(buddyDoc => {
+      personalizations.push(
+        createPersonalization(
+          buddyDoc.get('displayName'),
+          buddyDoc.get('email'),
+          dynamicTemplateData
+        )
+      );
+      documentsToDelete.push(buddyDoc.ref.delete());
+    });
+  }
+
+  await Promise.all(documentsToDelete);
+
+  if (!personalizations.length) {
+    return doc.ref.delete();
+  }
+
+  return {
+    doc,
+    payload: {
+      from: {
+        email: sendgrid.from_email,
+        name: sendgrid.from_name
+      },
+      template_id: sendgrid.templates.tour_update,
+      asm: {
+        group_id: parseInt(sendgrid.unsubscribe_groups.tour_update, 10) || null
+      },
+      personalizations
+    }
+  };
+}
+
 async function createSgPayload(options) {
   const { doc, db, sendgrid } = options;
   const notification = doc.data();
 
   const { relatedResourceId: tourId, dynamicTemplateData } = notification;
-  const { isBuddyNotification, isCommentNotification } = dynamicTemplateData;
+  const {
+    isBuddyNotification,
+    isCommentNotification,
+    isDeleteNotification
+  } = dynamicTemplateData;
 
+  if (isDeleteNotification) {
+    return await createDeleteSgPayload(options);
+  }
+
+  // what if tourDoc does not exist anymore?
   const tourDoc = await db
     .collection('tours')
     .doc(tourId)
@@ -76,12 +159,15 @@ async function createSgPayload(options) {
   let allBuddyNames = [];
   if (isBuddyNotification) {
     // compose buddies list
-    buddiesColl.forEach(buddy => allBuddyNames.push(buddy.get('displayName')));
+    buddiesColl.forEach(buddyDoc =>
+      allBuddyNames.push(buddyDoc.get('displayName'))
+    );
     creatorDoc = await tourDoc.get('creatorRef').get();
     allBuddyNames.push(creatorDoc.get('displayName'));
   }
 
   let commenterNames;
+
   if (isCommentNotification) {
     const commentsColl = await db
       .collection('tours')
@@ -92,8 +178,8 @@ async function createSgPayload(options) {
     dynamicTemplateData.hasComments = !commentsColl.empty;
 
     const commentAuthors = [];
-    commentsColl.forEach(doc => {
-      commentAuthors.push(doc.get('authorRef').get());
+    commentsColl.forEach(commentDoc => {
+      commentAuthors.push(commentDoc.get('authorRef').get());
     });
     const authorDocs = await Promise.all(commentAuthors);
     commenterNames = authorDocs.map(d => d.get('displayName'));
@@ -126,11 +212,11 @@ async function createSgPayload(options) {
 
   // buddy notifications
   if (!buddiesColl.empty) {
-    buddiesColl.forEach(buddy => {
+    buddiesColl.forEach(buddyDoc => {
       personalizations.push(
         createPersonalization(
-          buddy.get('displayName'),
-          buddy.get('email'),
+          buddyDoc.get('displayName'),
+          buddyDoc.get('email'),
           dynamicTemplateData,
           allBuddyNames,
           commenterNames
@@ -163,39 +249,15 @@ async function createSgPayload(options) {
 async function queueTourUpdate(options) {
   const {
     tourId,
+    tourTitle,
     isBuddyNotification,
     isCommentNotification,
     isInfoNotification,
+    isDeleteNotification,
     db,
     sendgrid,
     created
   } = options;
-
-  const tourDoc = await db
-    .collection('tours')
-    .doc(tourId)
-    .get();
-
-  if (!tourDoc.exists) {
-    return;
-  }
-
-  const dynamicTemplateData = {
-    tourUrl: `https://backcountrybuddy.org/tours/${tourId}`,
-    tourTitle: tourDoc.get('title')
-  };
-
-  if (isBuddyNotification) {
-    dynamicTemplateData.isBuddyNotification = true;
-  }
-
-  if (isCommentNotification) {
-    dynamicTemplateData.isCommentNotification = true;
-  }
-
-  if (isInfoNotification) {
-    dynamicTemplateData.isInfoNotification = true;
-  }
 
   const sendgridPayload = {
     from: {
@@ -213,9 +275,58 @@ async function queueTourUpdate(options) {
     relatedResourceId: tourId,
     isSent: false,
     sendgridPayload,
-    created,
-    dynamicTemplateData
+    created
   };
+
+  const dynamicTemplateData = {
+    tourUrl: `https://backcountrybuddy.org/tours/${tourId}`,
+    tourTitle
+  };
+
+  if (isDeleteNotification) {
+    dynamicTemplateData.isDeleteNotification = true;
+    notification.dynamicTemplateData = dynamicTemplateData;
+
+    const existingNotficationQuery = await db
+      .collection('notifications')
+      .where('type', '==', 'tour-update')
+      .where('relatedResourceId', '==', tourId)
+      .where('isSent', '==', false)
+      .orderBy('created', 'desc')
+      .limit(1)
+      .get();
+
+    if (existingNotficationQuery.empty) {
+      return await db.collection('notifications').add(notification);
+    }
+    const existingNotificationDoc = existingNotficationQuery.docs[0];
+    return await existingNotificationDoc.ref.update(notification);
+  }
+
+  const tourDoc = await db
+    .collection('tours')
+    .doc(tourId)
+    .get();
+
+  if (!tourDoc.exists) {
+    return;
+  }
+
+  dynamicTemplateData.tourTitle = tourDoc.get('title');
+
+  if (isBuddyNotification) {
+    dynamicTemplateData.isBuddyNotification = true;
+  }
+
+  if (isCommentNotification) {
+    dynamicTemplateData.isCommentNotification = true;
+  }
+
+  if (isInfoNotification) {
+    dynamicTemplateData.isInfoNotification = true;
+  }
+
+  notification.dynamicTemplateData = dynamicTemplateData;
 
   const existingNotficationQuery = await db
     .collection('notifications')

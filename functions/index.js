@@ -87,6 +87,14 @@ exports.decrementBuddyCount = functions.firestore
   .onDelete(async (snap, context) => {
     const tourId = context.params.tourId;
     const nrBuddies = admin.firestore.FieldValue.increment(-1);
+    const tourDoc = await db
+      .collection('tours')
+      .doc(tourId)
+      .get();
+    // possible scenario that buddy collection exists for deleted doc
+    if (!tourDoc.exists) {
+      return null;
+    }
     await notifications.queueTourUpdate({
       tourId,
       isBuddyNotification: true,
@@ -94,10 +102,7 @@ exports.decrementBuddyCount = functions.firestore
       sendgrid: functions.config().sendgrid,
       created: admin.firestore.FieldValue.serverTimestamp()
     });
-    return await db
-      .collection('tours')
-      .doc(tourId)
-      .update({ nrBuddies });
+    return await tourDoc.ref.update({ nrBuddies });
   });
 
 exports.createTourCommentNotification = functions.firestore
@@ -116,9 +121,8 @@ exports.createTourCommentNotification = functions.firestore
 exports.createTourInfoNotification = functions.firestore
   .document('tours/{tourId}')
   .onUpdate(async (change, context) => {
-    // exit if tour was deleted
-    // TODO: handle tour deletion
-    if (!change.after.exists) {
+    // exit if tour is new or was deleted
+    if (!change.after.exists || !change.before.exists) {
       return null;
     }
 
@@ -151,6 +155,21 @@ exports.createTourInfoNotification = functions.firestore
       });
     }
     return null;
+  });
+
+exports.createTourDeleteNotification = functions.firestore
+  .document('tours/{tourId}')
+  .onDelete(async (snap, context) => {
+    const tourId = context.params.tourId;
+    const tourTitle = snap.get('title');
+    return await notifications.queueTourUpdate({
+      tourId,
+      tourTitle,
+      isDeleteNotification: true,
+      db,
+      sendgrid: functions.config().sendgrid,
+      created: admin.firestore.FieldValue.serverTimestamp()
+    });
   });
 
 // create user profile with a default displayName on user signup

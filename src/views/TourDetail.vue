@@ -14,10 +14,12 @@
         <span class="text-sm whitespace-no-wrap ml-4">{{ tourDate }}</span>
       </div>
       <div class="flex flex-col">
-        <span class="font-light">{{ tour.location }}</span>
-        <span class="font-light text-xs"
-          >{{ tour.state }}, {{ tour.country }}</span
-        >
+        <span class="font-light" v-if="tour.location">{{ tour.location }}</span>
+        <span class="font-light text-xs" v-if="tour.state"
+          >{{ tour.state }}, </span
+        ><span class="font-light text-xs" v-if="tour.country">{{
+          tour.country
+        }}</span>
       </div>
     </h2>
 

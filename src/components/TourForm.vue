@@ -266,7 +266,7 @@ export default {
       }
 
       // required if locationRef has been resolved to Map
-      if (!this.tour.locationRef.path) {
+      if (this.tour.locationRef && !this.tour.locationRef.path) {
         this.tour.locationRef = db
           .collection('locations')
           .doc(this.tour.locationRef.id);

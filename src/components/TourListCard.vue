@@ -13,10 +13,12 @@
         }}</span>
       </div>
       <div class="flex flex-col">
-        <span class="font-light">{{ tour.location }}</span>
-        <span class="font-light text-xs"
-          >{{ tour.state }}, {{ tour.country }}</span
-        >
+        <span class="font-light" v-if="tour.location">{{ tour.location }}</span>
+        <span class="font-light text-xs" v-if="tour.state"
+          >{{ tour.state }}, </span
+        ><span class="font-light text-xs" v-if="tour.country">{{
+          tour.country
+        }}</span>
       </div>
     </h4>
     <p class="mt-2 mb-2 truncate">{{ tour.description }}</p>

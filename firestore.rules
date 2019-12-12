@@ -30,7 +30,7 @@ service cloud.firestore {
       match /buddies/{buddy} {
       	allow read;
         allow create: if request.auth.uid != null;
-        allow update, delete: if request.auth.uid == buddy;
+        allow update, delete: if get(resource.data.userRef).id == request.auth.uid;
       }
       
       match /comments/{comment} {

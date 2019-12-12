@@ -211,7 +211,7 @@ export default {
     },
     canJoin() {
       return this.buddies.reduce((acc, buddy) => {
-        return acc && this.currentUser.uid !== buddy.id;
+        return acc && this.currentUser.uid !== buddy.userRef.id;
       }, this.isAuthenticated);
     }
   },
@@ -219,19 +219,25 @@ export default {
   methods: {
     joinTour() {
       const { email, displayName, uid } = this.currentUser;
+      const userRef = db.collection('users').doc(uid);
       db.collection('tours')
         .doc(this.tour.id)
         .collection('buddies')
-        .doc(uid)
-        .set({ email, displayName });
+        .add({ email, displayName, userRef });
     },
-    leaveTour() {
+    async leaveTour() {
       const { uid } = this.currentUser;
-      db.collection('tours')
+      const userRef = db.collection('users').doc(uid);
+      const buddyQuerySnapshot = await db
+        .collection('tours')
         .doc(this.tour.id)
         .collection('buddies')
-        .doc(uid)
-        .delete();
+        .where('userRef', '==', userRef)
+        .get();
+
+      buddyQuerySnapshot.forEach(doc => {
+        doc.ref.delete();
+      });
     },
     focusLogin() {
       EventBus.$emit('focus-login');

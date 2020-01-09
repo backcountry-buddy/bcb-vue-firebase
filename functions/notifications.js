@@ -193,11 +193,13 @@ async function createSgPayload(options) {
       creatorDoc = await tourDoc.get('creatorRef').get();
     }
 
-    const creatorProfileDoc = await tourDoc
+    const privateProfileQuerySnapshot = await tourDoc
       .get('creatorRef')
       .collection('private')
-      .doc('profile')
+      .where('type', '==', 'privateUserProfile')
       .get();
+
+    const creatorProfileDoc = privateProfileQuerySnapshot.docs[0];
 
     personalizations.push(
       createPersonalization(

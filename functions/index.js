@@ -178,7 +178,7 @@ exports.createUserProfile = functions.auth.user().onCreate(async user => {
   const publicProfile = {
     displayName: `${email.split('@')[0]}`
   };
-  const privateProfile = { email, uid };
+  const privateProfile = { email, uid, type: 'privateUserProfile' };
   const subject = 'Backcountry Buddy user signed up';
   const text = `${email}, https://backcountrybuddy.org/users/${uid}`;
   notifications.notifySiteOwner(
@@ -195,8 +195,7 @@ exports.createUserProfile = functions.auth.user().onCreate(async user => {
     .collection('users')
     .doc(uid)
     .collection('private')
-    .doc('profile')
-    .set(privateProfile);
+    .add(privateProfile);
 });
 
 // cron function, runs every day at 7pm
